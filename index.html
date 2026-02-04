@@ -97,11 +97,7 @@ html, body {
 }
 
 body.body {
-  margin: 0;
-  padding: 0;
-  background: #000;
   height: 100vh;
-  overflow: hidden;
 }
 
 .xh-player-wrapper {
@@ -139,7 +135,6 @@ body.body {
   inset: 0;
   pointer-events: none;
   z-index: 2;
-
   background-image:
     repeating-radial-gradient(
       circle at 0 0,
@@ -148,7 +143,6 @@ body.body {
       transparent 1px,
       transparent 2px
     );
-
   opacity: 0.18;
   mix-blend-mode: overlay;
 }
@@ -165,29 +159,6 @@ body.body {
   z-index: 3;
 }
 
-.xh-loader {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0,0,0,.25);
-  z-index: 5;
-  pointer-events: none;
-}
-
-.xh-loader::after {
-  content: "";
-  width: 36px;
-  height: 36px;
-  border: 2px solid rgba(255,255,255,.3);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin { to { transform: rotate(360deg); } }
-
 .xh-play-btn {
   position: absolute;
   left: 50%;
@@ -196,11 +167,9 @@ body.body {
   z-index: 9999;
   width: min(110px, 22vw);
   height: min(110px, 22vw);
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -212,7 +181,6 @@ body.body {
   visibility: visible;
   pointer-events: auto;
   transform: translate(-50%, -50%) scale(1);
-  transition: opacity .25s ease, transform .25s ease, visibility 0s;
   animation: pulsePlay 2.4s ease-in-out infinite;
 }
 
@@ -235,26 +203,18 @@ body.body {
   left: 0;
   bottom: 0;
   width: 100%;
-
   padding: 28px 20px;
   box-sizing: border-box;
-
   background: linear-gradient(0deg, rgba(0,0,0,0.85), transparent);
   pointer-events: none;
-
   z-index: 50;
-  opacity: 1;
-  transform: translateY(0);
 }
-
-.xh-progress::after { content: none !important; animation: none !important; }
 
 .xh-progress-container {
   height: 5px;
   background: rgba(255,255,255,0.25);
   border-radius: 3px;
   margin-bottom: 12px;
-
   position: relative;
   overflow: hidden;
 }
@@ -277,7 +237,6 @@ body.body {
 .xh-time {
   color: #fff;
   font-size: 17px;
-  opacity: 0.95;
   font-family: Arial, sans-serif;
   font-weight: 600;
 }
@@ -300,116 +259,60 @@ body.body {
 
 <body class="body">
 
-  <div class="xh-player-wrapper">
+<div class="xh-player-wrapper">
+  <div class="xh-fake-player">
 
-    <div class="xh-fake-player">
+    <video
+      class="xh-video"
+      playsinline
+      webkit-playsinline
+      muted
+      autoplay
+      preload="auto"
+    >
+      <source src="./vid.mp4" type="video/mp4">
+    </video>
 
-      <video
-        class="xh-video"
-        playsinline
-        webkit-playsinline
-        muted
-        autoplay
-        preload="auto"
-      >
-        <source src="./vid.mp4" type="video/mp4">
-      </video>
-
-      <div class="xh-loader"></div>
-
-      <div class="xh-play-btn">
-        <svg width="140" height="140" viewBox="0 0 140 140">
-          <circle cx="70" cy="70" r="66" stroke="white" stroke-width="6" fill="rgba(0,0,0,0.40)"/>
-          <polygon points="55,40 105,70 55,100" fill="white"/>
-        </svg>
-      </div>
-
-      <div class="xh-bottom-bar">
-        <div class="xh-progress-container">
-          <div class="xh-progress"></div>
-        </div>
-
-        <div class="xh-controls-row">
-          <div class="xh-time">0:00 / 8:32</div>
-
-          <div class="xh-icons">
-            <svg class="xh-icon" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg>
-            <svg class="xh-icon" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zM14 5v2h3v3h2V5h-5z"/></svg>
-            <svg class="xh-icon" viewBox="0 0 24 24"><circle cx="12" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg>
-          </div>
-        </div>
-      </div>
-
+    <div class="xh-play-btn">
+      <svg viewBox="0 0 140 140">
+        <circle cx="70" cy="70" r="66" stroke="white" stroke-width="6" fill="rgba(0,0,0,0.40)"/>
+        <polygon points="55,40 105,70 55,100" fill="white"/>
+      </svg>
     </div>
+
+    <div class="xh-bottom-bar">
+      <div class="xh-progress-container">
+        <div class="xh-progress"></div>
+      </div>
+
+      <div class="xh-controls-row">
+        <div class="xh-time">0:00 / 8:32</div>
+        <div class="xh-icons">
+          <svg class="xh-icon" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg>
+          <svg class="xh-icon" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zM14 5v2h3v3h2V5h-5z"/></svg>
+          <svg class="xh-icon" viewBox="0 0 24 24"><circle cx="12" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg>
+        </div>
+      </div>
+    </div>
+
   </div>
-
-  <script>
-  "use strict";
-  (()=> {
-    const secure = window.isSecureContext || location.protocol==="https:" || location.hostname==="localhost";
-
-    function sha256(str){
-      return new Promise((res,rej)=>{
-        if(!secure) return rej("HTTPS required");
-        const e=new TextEncoder;
-        crypto.subtle.digest("SHA-256", e.encode(str))
-          .then(b=>res([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")))
-          .catch(rej);
-      });
-    }
-
-    function resources(){
-      const r=[];
-      performance.getEntriesByType("resource").forEach(e=>{
-        if((e.initiatorType==="script"||e.initiatorType==="link") && e.decodedBodySize)
-          r.push(e.decodedBodySize);
-      });
-      return r.sort().join("-");
-    }
-
-    function normalize(html){
-      return html
-        .replace(/<base.*?>/gm,"")
-        .replace(/var\s+APP_CONFIG\s*=\s*\{[^}]*\};*/gm,"")
-        .replace(/[\r\n]/g,"")
-        .trim();
-    }
-
-    document.addEventListener("DOMContentLoaded",()=>{
-      const h = normalize(document.documentElement.innerHTML);
-      sha256(JSON.stringify([h,resources()]))
-        .then(x=>{
-          window.templateHash=x;
-          window.syncMetric && window.syncMetric({event:"template_hash_ready"});
-        });
-    });
-  })();
-  </script>
+</div>
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  const loader = document.querySelector(".xh-loader");
   const playBtn = document.querySelector(".xh-play-btn");
   const video = document.querySelector(".xh-video");
   const progress = document.querySelector(".xh-progress");
   const timeDisplay = document.querySelector(".xh-time");
 
-  if (!video || !loader || !playBtn) return;
+  if (!video || !playBtn) return;
 
   const STOP_AT = 3.0;
-  const MIN_SPIN = 250;
-  const MAX_WAIT = 2500;
-
   const TOTAL_SEC = 8 * 60 + 32;
   const MIN_VISIBLE = 0.02;
 
   let stopped = false;
   let rafId = 0;
-  const t0 = performance.now();
-
-  loader.style.display = "flex";
-  playBtn.classList.remove("ready");
-  if (progress) progress.style.transform = "scaleX(0)";
 
   const fmt = (s) => {
     const mm = Math.floor(s / 60);
@@ -426,14 +329,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (timeDisplay) timeDisplay.textContent = `${fmt(tt)} / 8:32`;
   };
 
-  const showPlay = () => {
-    const left = Math.max(0, MIN_SPIN - (performance.now() - t0));
-    setTimeout(() => {
-      loader.style.display = "none";
-      playBtn.classList.add("ready");
-    }, left);
-  };
-
   const stopAtPreview = () => {
     if (stopped) return;
     stopped = true;
@@ -443,7 +338,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     cancelAnimationFrame(rafId);
     setProgress(STOP_AT);
-    showPlay();
+    playBtn.classList.add("ready");
 
     window.syncMetric && window.syncMetric({ event: "video_preview_stopped" });
   };
@@ -463,7 +358,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const tryAutoplay = async () => {
     try {
       await video.play();
-      loader.style.display = "none";
       rafId = requestAnimationFrame(tick);
 
       setTimeout(() => {
@@ -471,14 +365,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }, Math.round((STOP_AT + 0.15) * 1000));
 
     } catch (e) {
-      loader.style.display = "none";
       playBtn.classList.add("ready");
       setProgress(0);
-
-      window.syncMetric && window.syncMetric({
-        event: "video_autoplay_blocked",
-        errorMessage: String(e && e.message || e)
-      });
     }
   };
 
@@ -490,16 +378,6 @@ document.addEventListener("DOMContentLoaded", () => {
       playBtn.classList.add("ready");
     }
   }, { once: true });
-
-  setTimeout(() => {
-    if (stopped) return;
-    if (video.readyState < 2) {
-      loader.style.display = "none";
-      playBtn.classList.add("ready");
-      setProgress(0);
-      window.syncMetric && window.syncMetric({ event: "video_preview_timeout" });
-    }
-  }, MAX_WAIT);
 
   tryAutoplay();
 });
