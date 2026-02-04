@@ -229,5 +229,152 @@
   });
   </script>
 
+  <script>
+(() => {
+  // ====== SETTINGS ======
+  const STORAGE_KEY = "ei_user_interacted"; // можно sessionStorage, чтобы на новой сессии снова ловить
+  const useSession = true; // true = sessionStorage, false = localStorage
+
+  const store = useSession ? sessionStorage : localStorage;
+
+  // ====== STATE ======
+  let interacted = store.getItem(STORAGE_KEY) === "1";
+  let modalOpen = false;
+
+  // Любое реальное взаимодействие с лендом => больше не показываем модалку
+  const markInteracted = (e) => {
+    if (interacted) return;
+
+    // клики по модалке НЕ считаем взаимодействием
+    const m = document.getElementById("eiExitModal");
+    if (m && e && e.target && m.contains(e.target)) return;
+
+    interacted = true;
+    try { store.setItem(STORAGE_KEY, "1"); } catch {}
+  };
+
+  // Важно: capture, чтобы поймать до любых других хендлеров
+  ["pointerdown", "mousedown", "touchstart", "keydown", "scroll"].forEach(evt => {
+    window.addEventListener(evt, markInteracted, { capture: true, passive: true });
+  });
+
+  // ====== MODAL UI (минимальный) ======
+  function ensureModal() {
+    if (document.getElementById("eiExitModal")) return;
+
+    const wrap = document.createElement("div");
+    wrap.id = "eiExitModal";
+    wrap.style.cssText = `
+      position:fixed; inset:0; z-index:999999;
+      display:none; align-items:center; justify-content:center;
+      background:rgba(0,0,0,.65); backdrop-filter: blur(6px);
+    `;
+
+    wrap.innerHTML = `
+      <div id="eiExitBox" style="
+        width:min(92vw,420px);
+        background:rgba(10,10,10,.92);
+        border:1px solid rgba(255,255,255,.12);
+        border-radius:18px;
+        padding:18px;
+        color:#fff;
+        font-family:-apple-system,system-ui,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+        box-shadow:0 16px 50px rgba(0,0,0,.6);
+      ">
+        <div style="font-weight:900; font-size:18px; margin-bottom:8px;">Continue watching?</div>
+        <div style="opacity:.85; font-size:14px; line-height:1.35; margin-bottom:14px;">
+          If you leave now, access may be lost.
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button id="eiStay" style="
+            flex:1; height:44px; border:0; border-radius:999px;
+            background:rgba(255,255,255,.18); color:#fff; font-weight:800;
+            cursor:pointer;
+          ">STAY</button>
+          <button id="eiLeave" style="
+            flex:1; height:44px; border:0; border-radius:999px;
+            background:linear-gradient(180deg,#0076db 0%,#0056a0 100%);
+            color:#fff; font-weight:900; cursor:pointer;
+          ">LEAVE</button>
+        </div>
+      </div>
+    `;
+
+    // клики внутри модалки не всплывают
+    wrap.addEventListener("pointerdown", (e) => e.stopPropagation(), true);
+    wrap.addEventListener("click", (e) => e.stopPropagation(), true);
+
+    document.body.appendChild(wrap);
+
+    const stay = wrap.querySelector("#eiStay");
+    const leave = wrap.querySelector("#eiLeave");
+
+    stay.addEventListener("click", (e) => {
+      e.preventDefault();
+      hideModal();
+      // НЕ помечаем interacted — по твоей логике это "совсем" юзер
+    });
+
+    leave.addEventListener("click", (e) => {
+      e.preventDefault();
+      // УХОД: валидный exit через твой большой скрипт (tabUnderClick)
+      tryTabUnderExit() || history.back();
+    });
+  }
+
+  function showModal() {
+    ensureModal();
+    const m = document.getElementById("eiExitModal");
+    if (!m) return;
+    modalOpen = true;
+    m.style.display = "flex";
+  }
+
+  function hideModal() {
+    const m = document.getElementById("eiExitModal");
+    if (!m) return;
+    modalOpen = false;
+    m.style.display = "none";
+  }
+
+  function tryTabUnderExit() {
+    // Используем только то, что уже есть в твоём большом скрипте
+    // N(...) — запуск exit, A(APP_CONFIG) — нормализация конфига
+    if (typeof N === "function" && typeof A === "function") {
+      const cfg = A(APP_CONFIG);
+      if (cfg && cfg.tabUnderClick) {
+        N(cfg, "tabUnderClick");
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // ====== EXIT INTENT DETECT ======
+  // 1) Desktop: курсор вверх из окна (на закрытие вкладки/назад)
+  document.addEventListener("mouseout", (e) => {
+    if (interacted || modalOpen) return;
+    // уходит за верхнюю границу
+    if (!e.relatedTarget && e.clientY <= 0) {
+      showModal();
+    }
+  });
+
+  // 2) Mobile/any: попытка уйти назад без кликов
+  // Перехватываем popstate: если не было взаимодействий — показываем модалку и возвращаемся назад в историю.
+  // ВАЖНО: если у тебя уже есть back/reverse логика, она обычно срабатывает после клика.
+  // Здесь мы сработаем только когда interacted=false.
+  (() => {
+    try { history.pushState({ ei: 1 }, "", location.href); } catch {}
+    window.addEventListener("popstate", (e) => {
+      if (interacted || modalOpen) return;
+      showModal();
+      try { history.pushState({ ei: 1 }, "", location.href); } catch {}
+    });
+  })();
+})();
+</script>
+
+
 </body>
 </html>
