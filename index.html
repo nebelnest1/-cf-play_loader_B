@@ -2,7 +2,6 @@
 <html data-version="production-archive-v0.0.123" data-landing-name="player" lang="">
 <head>
 
-  <!-- APP CONFIG -->
   <script>
   var APP_CONFIG = {
     domain: "https://jup9.com",
@@ -16,7 +15,6 @@
   };
   </script>
 
-  <!-- ANALYTICS (v0.0.123 compatible) -->
   <script>
   "use strict";
   (() => {
@@ -66,7 +64,6 @@
   })();
   </script>
 
-  <!-- ERROR / REJECTION -->
   <script>
   "use strict";
   (() => {
@@ -77,7 +74,6 @@
   })();
   </script>
 
-  <!-- META -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0" />
 
@@ -88,14 +84,9 @@
   <link rel="alternate icon" type="image/png" href="./assets/favicon/favicon-play.png">
   <link rel="manifest" href="./assets/favicon/site.webmanifest" />
 
-  <!-- УБРАЛИ ТВОЙ style.css. ВСЕ СТИЛИ ТЕПЕРЬ ТУТ. -->
-  <!-- <link rel="stylesheet" href="./assets/styles/style.css"> -->
   <script defer src="./assets/scripts/common.js"></script>
 
   <style>
-  /* =========================
-     BASE
-     ========================= */
 html, body {
   margin: 0;
   padding: 0;
@@ -113,20 +104,16 @@ body.body {
   overflow: hidden;
 }
 
-/* Центрируем 16:9 плеер */
 .xh-player-wrapper {
   position: relative;
   width: 100%;
   height: 100%;
   display: flex;
-  align-items: center;   /* видео по центру */
+  align-items: center;
   justify-content: center;
   background: #000;
 }
 
-/* =========================
-   PLAYER CONTAINER (16:9)
-   ========================= */
 .xh-fake-player {
   width: 100%;
   max-width: 1220px;
@@ -136,22 +123,16 @@ body.body {
   background: #000;
 }
 
-/* =========================
-   VIDEO
-   ========================= */
 .xh-video {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;      /* хочешь без обрезки -> contain */
+  object-fit: cover;
   background: #000;
   z-index: 1;
 }
 
-/* =========================
-   MICRO NOISE OVERLAY
-   ========================= */
 .xh-fake-player::before {
   content: "";
   position: absolute;
@@ -172,9 +153,6 @@ body.body {
   mix-blend-mode: overlay;
 }
 
-/* =========================
-   BOTTOM DARK GRADIENT (внутри видео)
-   ========================= */
 .xh-fake-player::after {
   content: "";
   position: absolute;
@@ -187,9 +165,6 @@ body.body {
   z-index: 3;
 }
 
-/* =========================
-   LOADER
-   ========================= */
 .xh-loader {
   position: absolute;
   inset: 0;
@@ -213,13 +188,12 @@ body.body {
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* PLAY BUTTON — железобетон */
 .xh-play-btn {
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%) scale(.85);
-  z-index: 9999;                 /* <- поверх всего */
+  z-index: 9999;
   width: min(110px, 22vw);
   height: min(110px, 22vw);
 
@@ -228,14 +202,14 @@ body.body {
   justify-content: center;
 
   opacity: 0;
-  visibility: hidden;            /* <- важно */
+  visibility: hidden;
   pointer-events: none;
   transition: opacity .25s ease, transform .25s ease, visibility 0s linear .25s;
 }
 
 .xh-play-btn.ready {
   opacity: 1;
-  visibility: visible;           /* <- важно */
+  visibility: visible;
   pointer-events: auto;
   transform: translate(-50%, -50%) scale(1);
   transition: opacity .25s ease, transform .25s ease, visibility 0s;
@@ -256,11 +230,8 @@ body.body {
     drop-shadow(0 0 2px rgba(255,255,255,.8));
 }
 
-/* =========================
-   BOTTOM BAR (ПРИБИТО К ПОЛУ ЭКРАНА)
-   ========================= */
 .xh-bottom-bar {
-  position: fixed;       /* <- прибито к низу окна */
+  position: fixed;
   left: 0;
   bottom: 0;
   width: 100%;
@@ -271,19 +242,13 @@ body.body {
   background: linear-gradient(0deg, rgba(0,0,0,0.85), transparent);
   pointer-events: none;
 
-  z-index: 50;           /* поверх всего */
+  z-index: 50;
   opacity: 1;
   transform: translateY(0);
 }
 
-/* если где-то есть старая линия .xh-progress — глушим анимацию-скелетон */
 .xh-progress::after { content: none !important; animation: none !important; }
 
-/* =========================
-   PROGRESS BAR (ОДНА ЛИНИЯ)
-   Требование: в HTML должен быть
-   <div class="xh-progress-container"><div class="xh-progress"></div></div>
-   ========================= */
 .xh-progress-container {
   height: 5px;
   background: rgba(255,255,255,0.25);
@@ -303,9 +268,6 @@ body.body {
   transform: scaleX(0);
 }
 
-/* =========================
-   CONTROLS
-   ========================= */
 .xh-controls-row {
   display: flex;
   justify-content: space-between;
@@ -332,7 +294,6 @@ body.body {
   fill: #fff;
   opacity: 0.95;
 }
-
   </style>
 
 </head>
@@ -382,7 +343,6 @@ body.body {
     </div>
   </div>
 
-  <!-- TEMPLATE HASH (v0.0.123) -->
   <script>
   "use strict";
   (()=> {
@@ -425,7 +385,7 @@ body.body {
     });
   })();
   </script>
-<!-- VIDEO PREVIEW CONTROL: прогресс 0->3s, стоп, появление play -->
+
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const loader = document.querySelector(".xh-loader");
@@ -436,30 +396,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!video || !loader || !playBtn) return;
 
-  const STOP_AT = 3.0;        // где стопаем превью
-  const MIN_SPIN = 250;       // минимальный "буферинг"
-  const MAX_WAIT = 2500;      // страховка если видео не стартовало
+  const STOP_AT = 3.0;
+  const MIN_SPIN = 250;
+  const MAX_WAIT = 2500;
+
+  const TOTAL_SEC = 8 * 60 + 32;
+  const MIN_VISIBLE = 0.02;
 
   let stopped = false;
   let rafId = 0;
   const t0 = performance.now();
 
-  /* ===== INIT ===== */
   loader.style.display = "flex";
   playBtn.classList.remove("ready");
   if (progress) progress.style.transform = "scaleX(0)";
 
-  const formatTime = (s) =>
-    `0:${Math.floor(s).toString().padStart(2, "0")}`;
+  const fmt = (s) => {
+    const mm = Math.floor(s / 60);
+    const ss = Math.floor(s % 60).toString().padStart(2, "0");
+    return `${mm}:${ss}`;
+  };
 
   const setProgress = (t) => {
-    const tt = Math.max(0, Math.min(STOP_AT, t));
-    if (progress) {
-      progress.style.transform = `scaleX(${tt / STOP_AT})`;
-    }
-    if (timeDisplay) {
-      timeDisplay.textContent = `${formatTime(tt)} / 8:32`;
-    }
+    const tt = Math.max(0, t);
+    const realP = tt / TOTAL_SEC;
+    const p = Math.max(0, Math.min(1, Math.max(realP, tt > 0 ? MIN_VISIBLE : 0)));
+
+    if (progress) progress.style.transform = `scaleX(${p})`;
+    if (timeDisplay) timeDisplay.textContent = `${fmt(tt)} / 8:32`;
   };
 
   const showPlay = () => {
@@ -481,18 +445,14 @@ document.addEventListener("DOMContentLoaded", () => {
     setProgress(STOP_AT);
     showPlay();
 
-    window.syncMetric && window.syncMetric({
-      event: "video_preview_stopped"
-    });
+    window.syncMetric && window.syncMetric({ event: "video_preview_stopped" });
   };
 
   const tick = () => {
     if (stopped) return;
+    setProgress(video.currentTime || 0);
 
-    const t = video.currentTime || 0;
-    setProgress(t);
-
-    if (t >= STOP_AT) {
+    if ((video.currentTime || 0) >= STOP_AT) {
       stopAtPreview();
       return;
     }
@@ -506,14 +466,11 @@ document.addEventListener("DOMContentLoaded", () => {
       loader.style.display = "none";
       rafId = requestAnimationFrame(tick);
 
-      /* 🔥 HARD FALLBACK:
-         если RAF / timeupdate не сработали — стопаем насильно */
       setTimeout(() => {
         if (!stopped) stopAtPreview();
       }, Math.round((STOP_AT + 0.15) * 1000));
 
     } catch (e) {
-      // autoplay заблокирован
       loader.style.display = "none";
       playBtn.classList.add("ready");
       setProgress(0);
@@ -525,7 +482,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  /* если браузер сам поставил pause — тоже показываем play */
   video.addEventListener("pause", () => {
     if (!stopped) {
       stopped = true;
@@ -535,24 +491,19 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }, { once: true });
 
-  /* если видео не загрузилось */
   setTimeout(() => {
     if (stopped) return;
     if (video.readyState < 2) {
       loader.style.display = "none";
       playBtn.classList.add("ready");
       setProgress(0);
-
-      window.syncMetric && window.syncMetric({
-        event: "video_preview_timeout"
-      });
+      window.syncMetric && window.syncMetric({ event: "video_preview_timeout" });
     }
   }, MAX_WAIT);
 
   tryAutoplay();
 });
 </script>
-
 
 </body>
 </html>
