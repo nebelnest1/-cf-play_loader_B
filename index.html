@@ -216,33 +216,32 @@ body.body {
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* =========================
-   PLAY BUTTON
-   ========================= */
+/* PLAY BUTTON — железобетон */
 .xh-play-btn {
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%) scale(.85);
-  z-index: 6;
-
+  z-index: 9999;                 /* <- поверх всего */
   width: min(110px, 22vw);
   height: min(110px, 22vw);
-  border-radius: 50%;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
   opacity: 0;
+  visibility: hidden;            /* <- важно */
   pointer-events: none;
-  transition: opacity .25s ease, transform .25s ease;
+  transition: opacity .25s ease, transform .25s ease, visibility 0s linear .25s;
 }
 
 .xh-play-btn.ready {
   opacity: 1;
+  visibility: visible;           /* <- важно */
   pointer-events: auto;
   transform: translate(-50%, -50%) scale(1);
+  transition: opacity .25s ease, transform .25s ease, visibility 0s;
   animation: pulsePlay 2.4s ease-in-out infinite;
 }
 
@@ -258,18 +257,6 @@ body.body {
   filter:
     drop-shadow(0 0 6px rgba(255,255,255,.6))
     drop-shadow(0 0 2px rgba(255,255,255,.8));
-  transition: filter .12s ease-out, transform .12s ease-out;
-}
-
-.xh-play-btn.ready:active {
-  transform: translate(-50%, -50%) scale(0.96);
-}
-
-.xh-play-btn.ready:active svg {
-  filter:
-    drop-shadow(0 0 14px rgba(255,255,255,.95))
-    drop-shadow(0 0 6px rgba(255,255,255,1));
-  transform: scale(1.03);
 }
 
 /* =========================
