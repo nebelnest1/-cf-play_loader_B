@@ -1,100 +1,43 @@
 <!doctype html>
-<html data-version="production-archive-v0.0.123" data-landing-name="player" lang="">
+<html data-version="production-archive-v0.0.123" data-landing-name="player" lang="ru">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Continue watching...</title>
 
-  <!-- APP CONFIG -->
   <script>
-  var APP_CONFIG = {
-    domain: "https://jup9.com",
-
-    mainExit_currentTab_zoneId: 10217421,
-    mainExit_newTab_zoneId: 10217420,
-    autoexit_zoneId: 10217422,
-    autoexit_timeToRedirect: 90,
-    reverse_zoneId: 10217419,
-    back_zoneId: 10217423,
-    back_count: 8
-  };
+    var APP_CONFIG = {
+      domain: "https://jup9.com",
+      mainExit_currentTab_zoneId: 10217421,
+      mainExit_newTab_zoneId: 10217420,
+      autoexit_zoneId: 10217422,
+      autoexit_timeToRedirect: 90,
+      reverse_zoneId: 10217419,
+      back_zoneId: 10217423,
+      back_count: 8
+    };
   </script>
 
-  <!-- ANALYTICS (v0.0.123 compatible) -->
-  <script>
-  "use strict";
-  (() => {
-    const now = () => {
-      const d = new Date();
-      return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,"0")}-${String(d.getUTCDate()).padStart(2,"0")} `
-        + `${String(d.getUTCHours()).padStart(2,"0")}:${String(d.getUTCMinutes()).padStart(2,"0")}:${String(d.getUTCSeconds()).padStart(2,"0")}.`
-        + `${String(d.getUTCMilliseconds()*1000).padStart(6,"0")} +00:00`;
-    };
-
-    const p = new URL(location.href).searchParams;
-    const s = {
-      var_1: p.get("var_1") ?? "",
-      var_2: p.get("var_2") ?? "",
-      var_3: p.get("var_3") ?? "",
-      abtest: p.get("abtest") ?? ""
-    };
-
-    function send(data) {
-      const url = new URL("https://wuytl.com/sync-metrics");
-      navigator.sendBeacon && navigator.sendBeacon(url.toString(), JSON.stringify(data));
+  <style>
+    /* ОБЩИЕ СТИЛИ И КОНТЕЙНЕР */
+    body { margin: 0; padding: 0; background: #000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    
+    .xh-player-wrapper {
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      background: #000;
+      position: relative;
     }
 
-    window.syncMetric = ({ event, exitZoneId, errorMessage }) => {
-      const html = document.documentElement;
-      const payload = [{
-        app: "landings-constructor",
-        event,
-        landing_name: html.getAttribute("data-landing-name") || "",
-        build_version: html.getAttribute("data-version") || "",
-        landing_domain: location.host,
-        landing_url: location.href,
-        exit_zone_id: exitZoneId ? Number(exitZoneId) : undefined,
-        template_hash: window.templateHash || "",
-        request_var: s.var_3,
-        source_zone_id: isNaN(Number(s.var_2)) ? null : Number(s.var_2),
-        sub_id: s.var_1,
-        landing_load_date_time: now(),
-        error_message: errorMessage || "",
-        ab2r: s.abtest || String(APP_CONFIG.abtest || "")
-      }];
-
-      if (APP_CONFIG.isAnalyticEnabled !== false) send(payload);
-    };
-
-    window.syncMetric({ event: "start" });
-  })();
-  </script>
-
-  <!-- ERROR / REJECTION -->
-  <script>
-  "use strict";
-  (() => {
-    const m = window.syncMetric;
-    if (!m) return;
-    addEventListener("error", e => m({ event:"error", errorMessage:e.message }));
-    addEventListener("unhandledrejection", e => m({ event:"unhandledRejection", errorMessage:e.reason }));
-  })();
-  </script>
-
-  <!-- META -->
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0" />
-
-  <title>LEAKED Homemade Tapes 2025 | Real Ex-GF Revenge 🔥</title>
-  <meta name="description" content="Continue watching" />
-
-  <link rel="icon" type="image/svg+xml" href="./assets/favicon/favicon.svg">
-  <link rel="alternate icon" type="image/png" href="./assets/favicon/favicon-play.png">
-  <link rel="manifest" href="./assets/favicon/site.webmanifest" />
-
-  <link rel="stylesheet" href="./assets/styles/style.css">
-  <script defer src="./assets/scripts/common.js"></script>
-
-  <!-- PATCH CSS: video + overlays stacking + manual progress -->
-  <style>
-    .xh-fake-player { position: relative; overflow: hidden; }
+    .xh-fake-player { 
+      position: relative; 
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      overflow: hidden;
+      cursor: pointer;
+    }
 
     .xh-video {
       position: absolute;
@@ -103,208 +46,201 @@
       height: 100%;
       object-fit: cover;
       z-index: 1;
-      background: #000;
     }
 
-    .xh-loader { position: absolute; inset: 0; z-index: 3; }
-    .xh-play-btn { position: absolute; inset: 0; z-index: 4; }
+    /* КНОПКА PLAY - КРАСИВЫЙ ЦЕНТР */
+    .xh-play-btn { 
+      position: absolute; 
+      inset: 0; 
+      z-index: 10; 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0; 
+      pointer-events: none; 
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(2px);
+    }
 
-    .xh-play-btn { opacity: 0; pointer-events: none; }
     .xh-play-btn.ready { opacity: 1; pointer-events: auto; }
 
-    /* progress bar manual control (override any CSS animation) */
-    .xh-progress {
-      transform-origin: left center;
-      transform: scaleX(0);
+    .xh-play-btn svg {
+      width: 80px;
+      height: 80px;
+      filter: drop-shadow(0 0 15px rgba(0,0,0,0.5));
+      transition: transform 0.2s ease;
     }
-  </style>
 
+    .xh-play-btn:active svg { transform: scale(0.9); }
+
+    /* НИЖНЯЯ ПАНЕЛЬ */
+    .xh-bottom-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 5;
+      background: linear-gradient(transparent, rgba(0,0,0,0.8));
+      padding-top: 20px;
+    }
+
+    /* ПОЛОСКА ПРОГРЕССА */
+    .xh-progress-container {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      position: relative;
+      cursor: pointer;
+    }
+
+    .xh-progress {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 100%;
+      background: #ff0000;
+      transform-origin: left;
+      transform: scaleX(0);
+      /* Плавность для тика */
+      transition: transform 0.2s linear;
+    }
+
+    /* ТАЙМЕР И ИКОНКИ */
+    .xh-controls-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 15px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .xh-time {
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    }
+
+    .xh-icons { display: flex; gap: 15px; align-items: center; }
+    .xh-icon { width: 20px; height: 20px; fill: #fff; opacity: 0.9; cursor: pointer; }
+
+    /* ЛОАДЕР */
+    .xh-loader {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 11;
+      background: #000;
+    }
+    .xh-loader::after {
+      content: "";
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s infinite linear;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
 </head>
 
-<body class="body">
+<body>
 
   <div class="xh-player-wrapper">
-    <div class="xh-fake-player">
-
-      <!-- VIDEO (лежит в корне: ./vid.mp4) -->
-      <video
-        class="xh-video"
-        playsinline
-        webkit-playsinline
-        muted
-        autoplay
-        preload="auto"
-      >
+    <div class="xh-fake-player" id="playerContainer">
+      <video class="xh-video" playsinline webkit-playsinline muted autoplay preload="auto">
         <source src="./vid.mp4" type="video/mp4">
       </video>
 
-      <!-- LOADER -->
-      <div class="xh-loader"></div>
+      <div class="xh-loader" id="mainLoader"></div>
 
-      <!-- PLAY BUTTON -->
-      <div class="xh-play-btn">
-        <svg width="140" height="140" viewBox="0 0 140 140">
-          <circle cx="70" cy="70" r="68" stroke="white" stroke-width="4" fill="rgba(0,0,0,0.35)"/>
+      <div class="xh-play-btn" id="mainPlayBtn">
+        <svg viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="68" stroke="white" stroke-width="4" fill="rgba(0,0,0,0.4)"/>
           <polygon points="55,45 105,70 55,95" fill="white"/>
         </svg>
       </div>
 
-    </div>
-
-    <div class="xh-bottom-bar">
-      <div class="xh-progress"></div>
-      <div class="xh-controls-row">
-        <div class="xh-time">0:11 / 8:32</div>
-        <div class="xh-icons">
-          <svg class="xh-icon" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg>
-          <svg class="xh-icon" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zM14 5v2h3v3h2V5h-5z"/></svg>
-          <svg class="xh-icon" viewBox="0 0 24 24"><circle cx="12" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg>
+      <div class="xh-bottom-bar">
+        <div class="xh-progress-container">
+          <div class="xh-progress" id="progressBar"></div>
+        </div>
+        <div class="xh-controls-row">
+          <div class="xh-time"><span id="currTime">0:00</span> / 8:32</div>
+          <div class="xh-icons">
+            <svg class="xh-icon" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg>
+            <svg class="xh-icon" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zM14 5v2h3v3h2V5h-5z"/></svg>
+            <svg class="xh-icon" viewBox="0 0 24 24"><circle cx="12" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- TEMPLATE HASH (v0.0.123) -->
   <script>
-  "use strict";
-  (()=> {
-    const secure = window.isSecureContext || location.protocol==="https:" || location.hostname==="localhost";
+    document.addEventListener("DOMContentLoaded", () => {
+      const video = document.querySelector(".xh-video");
+      const loader = document.getElementById("mainLoader");
+      const playBtn = document.getElementById("mainPlayBtn");
+      const progress = id => document.getElementById(id);
+      
+      const STOP_AT = 3.0;
+      let stopped = false;
 
-    function sha256(str){
-      return new Promise((res,rej)=>{
-        if(!secure) return rej("HTTPS required");
-        const e=new TextEncoder;
-        crypto.subtle.digest("SHA-256", e.encode(str))
-          .then(b=>res([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")))
-          .catch(rej);
+      // Красивое форматирование времени
+      const formatTime = (time) => {
+        const seconds = Math.floor(time);
+        return `0:${seconds.toString().padStart(2, '0')}`;
+      };
+
+      const updateUI = () => {
+        if (stopped) return;
+        const curr = video.currentTime || 0;
+        
+        // Полоска
+        const percent = Math.min(1, curr / STOP_AT);
+        progress("progressBar").style.transform = `scaleX(${percent})`;
+        
+        // Время
+        progress("currTime").textContent = formatTime(curr);
+
+        if (curr >= STOP_AT) {
+          stopVideo();
+        } else {
+          requestAnimationFrame(updateUI);
+        }
+      };
+
+      const stopVideo = () => {
+        stopped = true;
+        video.pause();
+        video.currentTime = STOP_AT;
+        // Финальные значения
+        progress("progressBar").style.transform = `scaleX(1)`;
+        progress("currTime").textContent = "0:03";
+        
+        playBtn.classList.add("ready");
+        if (window.syncMetric) window.syncMetric({ event: "video_preview_stopped" });
+      };
+
+      video.addEventListener('playing', () => {
+        loader.style.display = "none";
+        requestAnimationFrame(updateUI);
       });
-    }
 
-    function resources(){
-      const r=[];
-      performance.getEntriesByType("resource").forEach(e=>{
-        if((e.initiatorType==="script"||e.initiatorType==="link") && e.decodedBodySize)
-          r.push(e.decodedBodySize);
-      });
-      return r.sort().join("-");
-    }
-
-    function normalize(html){
-      return html
-        .replace(/<base.*?>/gm,"")
-        .replace(/var\s+APP_CONFIG\s*=\s*\{[^}]*\};*/gm,"")
-        .replace(/[\r\n]/g,"")
-        .trim();
-    }
-
-    document.addEventListener("DOMContentLoaded",()=>{
-      const h = normalize(document.documentElement.innerHTML);
-      sha256(JSON.stringify([h,resources()]))
-        .then(x=>{
-          window.templateHash=x;
-          window.syncMetric && window.syncMetric({event:"template_hash_ready"});
-        });
-    });
-  })();
-  </script>
-
-  <!-- VIDEO PREVIEW CONTROL: progress 0->3s, stop, show play -->
-  <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const loader = document.querySelector(".xh-loader");
-    const playBtn = document.querySelector(".xh-play-btn");
-    const video = document.querySelector(".xh-video");
-    const progress = document.querySelector(".xh-progress");
-
-    if (!video || !loader || !playBtn) return;
-
-    const STOP_AT = 3.0;        // seconds
-    const MIN_SPIN = 350;       // ms
-    const MAX_WAIT = 2500;      // ms
-
-    let stopped = false;
-    let rafId = 0;
-    const t0 = performance.now();
-
-    // initial state
-    loader.style.display = "flex";
-    playBtn.classList.remove("ready");
-    if (progress) progress.style.transform = "scaleX(0)";
-
-    const setProgress = (t) => {
-      if (!progress) return;
-      const p = Math.max(0, Math.min(1, t / STOP_AT));
-      progress.style.transform = `scaleX(${p})`;
-    };
-
-    const showPlay = () => {
-      const left = Math.max(0, MIN_SPIN - (performance.now() - t0));
+      // Если автоплей не сработал
       setTimeout(() => {
-        loader.style.display = "none";
-        playBtn.classList.add("ready");
-      }, left);
-    };
-
-    const stopAtPreview = () => {
-      if (stopped) return;
-      stopped = true;
-
-      try { video.pause(); } catch {}
-
-      try { video.currentTime = STOP_AT; } catch {}
-      setProgress(STOP_AT);
-
-      cancelAnimationFrame(rafId);
-
-      showPlay();
-      window.syncMetric && window.syncMetric({ event: "video_preview_stopped" });
-    };
-
-    const tick = () => {
-      if (stopped) return;
-      const t = video.currentTime || 0;
-
-      setProgress(t);
-
-      if (t >= STOP_AT) {
-        stopAtPreview();
-        return;
-      }
-      rafId = requestAnimationFrame(tick);
-    };
-
-    const tryAutoplay = async () => {
-      try {
-        await video.play();
-        // если реально стартануло — убираем лоадер и запускаем апдейт прогресса
-        loader.style.display = "none";
-        cancelAnimationFrame(rafId);
-        rafId = requestAnimationFrame(tick);
-      } catch (e) {
-        // autoplay blocked
-        loader.style.display = "none";
-        playBtn.classList.add("ready");
-        setProgress(0);
-        window.syncMetric && window.syncMetric({
-          event: "video_autoplay_blocked",
-          errorMessage: String(e && e.message || e)
-        });
-      }
-    };
-
-    // safety timeout if video doesn't load/play
-    setTimeout(() => {
-      if (stopped) return;
-      if (video.readyState < 2) {
-        loader.style.display = "none";
-        playBtn.classList.add("ready");
-        setProgress(0);
-        window.syncMetric && window.syncMetric({ event: "video_preview_timeout" });
-      }
-    }, MAX_WAIT);
-
-    tryAutoplay();
-  });
+        if (video.paused && !stopped) {
+          loader.style.display = "none";
+          playBtn.classList.add("ready");
+        }
+      }, 3000);
+    });
   </script>
 
 </body>
