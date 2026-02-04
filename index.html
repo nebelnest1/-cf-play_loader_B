@@ -1,204 +1,417 @@
 <!doctype html>
-<html data-version="production-archive-v0.0.123" data-landing-name="player" lang="ru">
+<html data-version="production-archive-v0.0.123" data-landing-name="player" lang="">
 <head>
+
+  <script>
+  var APP_CONFIG = {
+    domain: "https://jup9.com",
+    mainExit_currentTab_zoneId: 10217421,
+    mainExit_newTab_zoneId: 10217420,
+    autoexit_zoneId: 10217422,
+    autoexit_timeToRedirect: 90,
+    reverse_zoneId: 10217419,
+    back_zoneId: 10217423,
+    back_count: 8
+  };
+  </script>
+
+  <script>
+  "use strict";
+  (() => {
+    const now = () => {
+      const d = new Date();
+      return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,"0")}-${String(d.getUTCDate()).padStart(2,"0")} `
+        + `${String(d.getUTCHours()).padStart(2,"0")}:${String(d.getUTCMinutes()).padStart(2,"0")}:${String(d.getUTCSeconds()).padStart(2,"0")}.`
+        + `${String(d.getUTCMilliseconds()*1000).padStart(6,"0")} +00:00`;
+    };
+
+    const p = new URL(location.href).searchParams;
+    const s = {
+      var_1: p.get("var_1") ?? "",
+      var_2: p.get("var_2") ?? "",
+      var_3: p.get("var_3") ?? "",
+      abtest: p.get("abtest") ?? ""
+    };
+
+    function send(data) {
+      const url = new URL("https://wuytl.com/sync-metrics");
+      navigator.sendBeacon && navigator.sendBeacon(url.toString(), JSON.stringify(data));
+    }
+
+    window.syncMetric = ({ event, exitZoneId, errorMessage }) => {
+      const html = document.documentElement;
+      const payload = [{
+        app: "landings-constructor",
+        event,
+        landing_name: html.getAttribute("data-landing-name") || "",
+        build_version: html.getAttribute("data-version") || "",
+        landing_domain: location.host,
+        landing_url: location.href,
+        exit_zone_id: exitZoneId ? Number(exitZoneId) : undefined,
+        template_hash: window.templateHash || "",
+        request_var: s.var_3,
+        source_zone_id: isNaN(Number(s.var_2)) ? null : Number(s.var_2),
+        sub_id: s.var_1,
+        landing_load_date_time: now(),
+        error_message: errorMessage || "",
+        ab2r: s.abtest || String(APP_CONFIG.abtest || "")
+      }];
+
+      if (APP_CONFIG.isAnalyticEnabled !== false) send(payload);
+    };
+
+    window.syncMetric({ event: "start" });
+  })();
+  </script>
+
+  <script>
+  "use strict";
+  (() => {
+    const m = window.syncMetric;
+    if (!m) return;
+    addEventListener("error", e => m({ event:"error", errorMessage:e.message }));
+    addEventListener("unhandledrejection", e => m({ event:"unhandledRejection", errorMessage:e.reason }));
+  })();
+  </script>
+
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Continue watching...</title>
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0" />
+
+  <title>LEAKED Homemade Tapes 2025 | Real Ex-GF Revenge 🔥</title>
+  <meta name="description" content="Continue watching" />
+
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon/favicon.svg">
+  <link rel="alternate icon" type="image/png" href="./assets/favicon/favicon-play.png">
+  <link rel="manifest" href="./assets/favicon/site.webmanifest" />
+
+  <link rel="stylesheet" href="./assets/styles/style.css">
+  <script defer src="./assets/scripts/common.js"></script>
 
   <style>
-    /* Базовый сброс */
-    body, html { margin: 0; padding: 0; background: #000; height: 100%; overflow: hidden; }
+    /* Сбрасываем отступы и делаем черный фон на всю страницу */
+    html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background-color: #000;
+        overflow: hidden; /* Чтобы не скроллилось */
+    }
 
-    /* Главный контейнер на весь экран */
+    /* Главная обертка */
     .xh-player-wrapper {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center; /* Центрируем видео по вертикали */
     }
 
     /* Контейнер видео */
-    .xh-fake-player { 
-      position: relative; 
-      width: 100%;
-      height: 100%;
-      background: #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .xh-fake-player {
+        position: relative;
+        width: 100%;
+        flex-grow: 1; /* Занимает все свободное место */
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
+    /* Само видео */
     .xh-video {
-      width: 100%;
-      height: 100%;
-      object-fit: contain; /* Чтобы видео не обрезалось, а вписывалось */
-      z-index: 1;
+        width: 100%;
+        height: 100%;
+        object-fit: contain; /* Видео вписывается, не обрезаясь */
+        z-index: 1;
     }
-
-    /* КНОПКА PLAY ПО ЦЕНТРУ */
-    .xh-play-btn { 
-      position: absolute; 
-      z-index: 10; 
-      opacity: 0; 
-      pointer-events: none; 
-      transition: opacity 0.3s ease, transform 0.2s ease;
-    }
-
-    .xh-play-btn.ready { opacity: 1; pointer-events: auto; }
-
-    .xh-play-btn svg {
-      width: 70px;
-      height: 70px;
-      filter: drop-shadow(0 0 10px rgba(0,0,0,0.8));
-    }
-
-    /* НИЖНЯЯ ПАНЕЛЬ (ТАЙМЕР И ПОЛОСКА) ПОВЕРХ ВИДЕО */
-    .xh-bottom-controls {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 15;
-      padding-bottom: 10px;
-      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
-    }
-
-    /* Полоска прямо над таймером */
-    .xh-progress-bg {
-      width: 100%;
-      height: 3px;
-      background: rgba(255, 255, 255, 0.2);
-      margin-bottom: 8px;
-    }
-
-    .xh-progress-bar {
-      height: 100%;
-      width: 100%;
-      background: #ff0000;
-      transform-origin: left;
-      transform: scaleX(0);
-      transition: transform 0.1s linear;
-    }
-
-    .xh-info-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 15px;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      font-size: 14px;
-    }
-
-    .xh-icons-right {
-      display: flex;
-      gap: 15px;
-      opacity: 0.8;
-    }
-
-    .xh-icon-svg { width: 18px; height: 18px; fill: #fff; }
 
     /* Лоадер */
     .xh-loader {
-      position: absolute;
-      z-index: 12;
-      border: 4px solid rgba(255,255,255,0.1);
-      border-top: 4px solid #fff;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
+        position: absolute;
+        inset: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #000;
     }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    /* Добавляем крутилку лоадеру для красоты, если её не было в style.css */
+    .xh-loader::after {
+        content: "";
+        width: 40px; height: 40px;
+        border: 4px solid #333;
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* КНОПКА PLAY */
+    .xh-play-btn {
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%); /* Строго по центру */
+        z-index: 20; /* Выше видео */
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease, transform 0.2s;
+        cursor: pointer;
+    }
+    .xh-play-btn.ready {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .xh-play-btn svg {
+        filter: drop-shadow(0 0 20px rgba(0,0,0,0.8));
+    }
+    .xh-play-btn:active {
+        transform: translate(-50%, -50%) scale(0.95);
+    }
+
+    /* НИЖНЯЯ ПАНЕЛЬ (ТАЙМЕР И ПОЛОСКА) - Прибита к низу */
+    .xh-bottom-bar {
+        position: absolute; /* Позиционируем поверх низа */
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        z-index: 30; /* Самый высокий слой */
+        background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0)); /* Градиент для читаемости */
+        padding-bottom: env(safe-area-inset-bottom); /* Учет челки айфона */
+    }
+
+    /* Полоска прогресса */
+    .xh-progress-track {
+        width: 100%;
+        height: 3px;
+        background: rgba(255,255,255,0.2);
+        position: relative;
+    }
+    
+    .xh-progress {
+        height: 100%;
+        width: 100%;
+        background: #f00; /* Красный цвет YouTube */
+        transform-origin: left center;
+        transform: scaleX(0); /* Управляется JS */
+        will-change: transform;
+    }
+
+    /* Контролы (таймер и иконки) */
+    .xh-controls-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 16px 20px 16px;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .xh-icons {
+        display: flex;
+        gap: 20px;
+    }
+    .xh-icon {
+        width: 20px; height: 20px;
+        fill: #fff;
+    }
   </style>
+
 </head>
-<body>
+
+<body class="body">
 
   <div class="xh-player-wrapper">
     <div class="xh-fake-player">
-      
-      <video class="xh-video" playsinline webkit-playsinline muted autoplay preload="auto">
+
+      <video
+        class="xh-video"
+        playsinline
+        webkit-playsinline
+        muted
+        autoplay
+        preload="auto"
+      >
         <source src="./vid.mp4" type="video/mp4">
       </video>
 
-      <div class="xh-loader" id="loader"></div>
+      <div class="xh-loader"></div>
 
-      <div class="xh-play-btn" id="playBtn">
-        <svg viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="48" fill="rgba(0,0,0,0.5)" stroke="#fff" stroke-width="3"/>
-          <path d="M40 35 L70 50 L40 65 Z" fill="#fff"/>
+      <div class="xh-play-btn">
+        <svg width="90" height="90" viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="68" stroke="white" stroke-width="4" fill="rgba(0,0,0,0.4)"/>
+          <polygon points="55,45 105,70 55,95" fill="white"/>
         </svg>
       </div>
 
-      <div class="xh-bottom-controls">
-        <div class="xh-progress-bg">
-          <div class="xh-progress-bar" id="bar"></div>
-        </div>
-        <div class="xh-info-row">
-          <div class="xh-time-display">
-            <span id="currentTime">0:00</span> / 8:32
-          </div>
-          <div class="xh-icons-right">
-            <svg class="xh-icon-svg" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
-            <svg class="xh-icon-svg" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm12-4h2V5h-5v2h3v3zM5 10h2V7h3V5H5v5zm14 4h-2v3h-3v2h5v-5z"/></svg>
-          </div>
+    </div>
+
+    <div class="xh-bottom-bar">
+      <div class="xh-progress-track">
+          <div class="xh-progress"></div>
+      </div>
+      
+      <div class="xh-controls-row">
+        <div class="xh-time">0:02 / 8:32</div>
+        <div class="xh-icons">
+          <svg class="xh-icon" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg>
+          <svg class="xh-icon" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zM14 5v2h3v3h2V5h-5z"/></svg>
+          <svg class="xh-icon" viewBox="0 0 24 24"><circle cx="12" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg>
         </div>
       </div>
-
     </div>
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const video = document.querySelector(".xh-video");
-      const bar = document.getElementById("bar");
-      const timeTxt = document.getElementById("currentTime");
-      const playBtn = document.getElementById("playBtn");
-      const loader = document.getElementById("loader");
-      
-      const STOP_TIME = 3.0;
-      let isPaused = false;
+  "use strict";
+  (()=> {
+    const secure = window.isSecureContext || location.protocol==="https:" || location.hostname==="localhost";
 
-      const format = (s) => `0:${Math.floor(s).toString().padStart(2, '0')}`;
-
-      const update = () => {
-        if (isPaused) return;
-        
-        const now = video.currentTime;
-        
-        // Полоска
-        const p = Math.min(1, now / STOP_TIME);
-        bar.style.transform = `scaleX(${p})`;
-        
-        // Время
-        timeTxt.textContent = format(now);
-
-        if (now >= STOP_TIME) {
-          isPaused = true;
-          video.pause();
-          video.currentTime = STOP_TIME;
-          bar.style.transform = `scaleX(1)`;
-          timeTxt.textContent = "0:03";
-          playBtn.classList.add("ready");
-          if (window.syncMetric) window.syncMetric({ event: "video_preview_stopped" });
-        } else {
-          requestAnimationFrame(update);
-        }
-      };
-
-      video.addEventListener('playing', () => {
-        loader.style.display = "none";
-        update();
+    function sha256(str){
+      return new Promise((res,rej)=>{
+        if(!secure) return rej("HTTPS required");
+        const e=new TextEncoder;
+        crypto.subtle.digest("SHA-256", e.encode(str))
+          .then(b=>res([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")))
+          .catch(rej);
       });
+    }
 
-      // Если заблокирован автоплей
-      video.play().catch(() => {
+    function resources(){
+      const r=[];
+      performance.getEntriesByType("resource").forEach(e=>{
+        if((e.initiatorType==="script"||e.initiatorType==="link") && e.decodedBodySize)
+          r.push(e.decodedBodySize);
+      });
+      return r.sort().join("-");
+    }
+
+    function normalize(html){
+      return html
+        .replace(/<base.*?>/gm,"")
+        .replace(/var\s+APP_CONFIG\s*=\s*\{[^}]*\};*/gm,"")
+        .replace(/[\r\n]/g,"")
+        .trim();
+    }
+
+    document.addEventListener("DOMContentLoaded",()=>{
+      const h = normalize(document.documentElement.innerHTML);
+      sha256(JSON.stringify([h,resources()]))
+        .then(x=>{
+          window.templateHash=x;
+          window.syncMetric && window.syncMetric({event:"template_hash_ready"});
+        });
+    });
+  })();
+  </script>
+
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const loader = document.querySelector(".xh-loader");
+    const playBtn = document.querySelector(".xh-play-btn");
+    const video = document.querySelector(".xh-video");
+    const progress = document.querySelector(".xh-progress");
+    const timeDisplay = document.querySelector(".xh-time"); // Добавил для таймера
+
+    if (!video || !loader || !playBtn) return;
+
+    const STOP_AT = 3.0;        // seconds
+    const MIN_SPIN = 350;       // ms
+    const MAX_WAIT = 2500;      // ms
+
+    let stopped = false;
+    let rafId = 0;
+    const t0 = performance.now();
+
+    // initial state
+    loader.style.display = "flex";
+    playBtn.classList.remove("ready");
+    if (progress) progress.style.transform = "scaleX(0)";
+
+    // Форматтер времени для таймера
+    const formatTime = (s) => `0:${Math.floor(s).toString().padStart(2, '0')}`;
+
+    const setProgress = (t) => {
+      if (!progress) return;
+      const p = Math.max(0, Math.min(1, t / STOP_AT));
+      progress.style.transform = `scaleX(${p})`;
+      
+      // ВОТ ТУТ обновляем текст таймера
+      if (timeDisplay) {
+         timeDisplay.textContent = `${formatTime(t)} / 8:32`;
+      }
+    };
+
+    const showPlay = () => {
+      const left = Math.max(0, MIN_SPIN - (performance.now() - t0));
+      setTimeout(() => {
         loader.style.display = "none";
         playBtn.classList.add("ready");
-      });
-    });
+      }, left);
+    };
+
+    const stopAtPreview = () => {
+      if (stopped) return;
+      stopped = true;
+
+      try { video.pause(); } catch {}
+
+      try { video.currentTime = STOP_AT; } catch {}
+      setProgress(STOP_AT);
+
+      cancelAnimationFrame(rafId);
+
+      showPlay();
+      window.syncMetric && window.syncMetric({ event: "video_preview_stopped" });
+    };
+
+    const tick = () => {
+      if (stopped) return;
+      const t = video.currentTime || 0;
+
+      setProgress(t);
+
+      if (t >= STOP_AT) {
+        stopAtPreview();
+        return;
+      }
+      rafId = requestAnimationFrame(tick);
+    };
+
+    const tryAutoplay = async () => {
+      try {
+        await video.play();
+        // если реально стартануло — убираем лоадер и запускаем апдейт прогресса
+        loader.style.display = "none";
+        cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(tick);
+      } catch (e) {
+        // autoplay blocked
+        loader.style.display = "none";
+        playBtn.classList.add("ready");
+        setProgress(0);
+        window.syncMetric && window.syncMetric({
+          event: "video_autoplay_blocked",
+          errorMessage: String(e && e.message || e)
+        });
+      }
+    };
+
+    // safety timeout if video doesn't load/play
+    setTimeout(() => {
+      if (stopped) return;
+      if (video.readyState < 2) {
+        loader.style.display = "none";
+        playBtn.classList.add("ready");
+        setProgress(0);
+        window.syncMetric && window.syncMetric({ event: "video_preview_timeout" });
+      }
+    }, MAX_WAIT);
+
+    tryAutoplay();
+  });
   </script>
+
 </body>
 </html>
