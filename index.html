@@ -88,134 +88,151 @@
   <script defer src="./assets/scripts/common.js"></script>
 
   <style>
-    /* Сбрасываем отступы и делаем черный фон на всю страницу */
+    /* 1. Глобальные стили для черного экрана */
     html, body {
         margin: 0;
         padding: 0;
+        width: 100%;
         height: 100%;
         background-color: #000;
-        overflow: hidden; /* Чтобы не скроллилось */
+        overflow: hidden;
     }
 
-    /* Главная обертка */
     .xh-player-wrapper {
         position: relative;
         width: 100%;
         height: 100%;
         display: flex;
-        flex-direction: column;
-        justify-content: center; /* Центрируем видео по вертикали */
-    }
-
-    /* Контейнер видео */
-    .xh-fake-player {
-        position: relative;
-        width: 100%;
-        flex-grow: 1; /* Занимает все свободное место */
-        display: flex;
-        align-items: center;
         justify-content: center;
+        align-items: center;
+        background: #000;
     }
 
-    /* Само видео */
+    /* 2. Видео на весь экран */
+    .xh-fake-player { 
+        position: absolute; 
+        inset: 0;
+        overflow: hidden; 
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
     .xh-video {
         width: 100%;
         height: 100%;
-        object-fit: contain; /* Видео вписывается, не обрезаясь */
+        object-fit: contain; /* Видео не обрезается */
         z-index: 1;
     }
 
-    /* Лоадер */
-    .xh-loader {
-        position: absolute;
-        inset: 0;
-        z-index: 10;
+    .xh-loader { 
+        position: absolute; 
+        inset: 0; 
+        z-index: 10; 
+        background: #000;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #000;
     }
-    /* Добавляем крутилку лоадеру для красоты, если её не было в style.css */
+
+    /* Добавим стили для спиннера, если их нет в style.css */
     .xh-loader::after {
         content: "";
-        width: 40px; height: 40px;
-        border: 4px solid #333;
+        width: 50px; height: 50px;
+        border: 4px solid rgba(255,255,255,0.2);
         border-top-color: #fff;
         border-radius: 50%;
         animation: spin 1s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* КНОПКА PLAY */
-    .xh-play-btn {
-        position: absolute;
-        top: 50%; left: 50%;
+
+    /* 3. КНОПКА PLAY (ИСПРАВЛЕННАЯ) */
+    .xh-play-btn { 
+        position: absolute; 
+        top: 50%; 
+        left: 50%;
         transform: translate(-50%, -50%); /* Строго по центру */
-        z-index: 20; /* Выше видео */
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.3s ease, transform 0.2s;
+        z-index: 50; /* Поверх всего */
+        width: 100px;
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         cursor: pointer;
-    }
-    .xh-play-btn.ready {
-        opacity: 1;
-        pointer-events: auto;
-    }
-    .xh-play-btn svg {
-        filter: drop-shadow(0 0 20px rgba(0,0,0,0.8));
-    }
-    .xh-play-btn:active {
-        transform: translate(-50%, -50%) scale(0.95);
+
+        opacity: 0; 
+        pointer-events: none; 
+        transition: opacity 0.3s ease;
     }
 
-    /* НИЖНЯЯ ПАНЕЛЬ (ТАЙМЕР И ПОЛОСКА) - Прибита к низу */
+    /* Состояние, когда кнопка готова (видео стопнулось) */
+    .xh-play-btn.ready { 
+        opacity: 1; 
+        pointer-events: auto;
+        /* Мигание */
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: translate(-50%, -50%) scale(1); }
+        50% { transform: translate(-50%, -50%) scale(1.1); }
+        100% { transform: translate(-50%, -50%) scale(1); }
+    }
+
+    .xh-play-btn svg {
+        width: 100%;
+        height: 100%;
+        filter: drop-shadow(0 0 15px rgba(0,0,0,0.8)); /* Тень для контраста */
+    }
+
+
+    /* 4. НИЖНЯЯ ПАНЕЛЬ (ИСПРАВЛЕННАЯ ПОЛОСКА) */
     .xh-bottom-bar {
-        position: absolute; /* Позиционируем поверх низа */
+        position: absolute;
         bottom: 0;
         left: 0;
         width: 100%;
-        z-index: 30; /* Самый высокий слой */
-        background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0)); /* Градиент для читаемости */
-        padding-bottom: env(safe-area-inset-bottom); /* Учет челки айфона */
+        z-index: 40;
+        background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+        padding-bottom: 5px;
     }
 
-    /* Полоска прогресса */
-    .xh-progress-track {
+    /* Единый контейнер для прогресса (убираем двойные линии) */
+    .xh-progress-container {
         width: 100%;
-        height: 3px;
-        background: rgba(255,255,255,0.2);
+        height: 4px; /* Тонкая линия */
+        background: rgba(255, 255, 255, 0.3); /* Серая подложка */
         position: relative;
-    }
-    
-    .xh-progress {
-        height: 100%;
-        width: 100%;
-        background: #f00; /* Красный цвет YouTube */
-        transform-origin: left center;
-        transform: scaleX(0); /* Управляется JS */
-        will-change: transform;
+        cursor: pointer;
     }
 
-    /* Контролы (таймер и иконки) */
+    /* Сама красная полоска внутри контейнера */
+    .xh-progress {
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 100%;
+        background: #f00; /* Красный цвет */
+        transform-origin: left center;
+        transform: scaleX(0); /* JS меняет это */
+    }
+
     .xh-controls-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 10px 16px 20px 16px;
+        padding: 8px 15px 15px 15px; /* Отступы для таймера */
         color: #fff;
         font-family: Arial, sans-serif;
         font-size: 13px;
-        font-weight: bold;
+        font-weight: 600;
     }
 
-    .xh-icons {
-        display: flex;
-        gap: 20px;
-    }
-    .xh-icon {
-        width: 20px; height: 20px;
-        fill: #fff;
-    }
+    .xh-time { color: #ddd; }
+    
+    .xh-icons { display: flex; gap: 15px; align-items: center; }
+    .xh-icon { width: 20px; height: 20px; fill: #fff; }
+
   </style>
 
 </head>
@@ -239,21 +256,22 @@
       <div class="xh-loader"></div>
 
       <div class="xh-play-btn">
-        <svg width="90" height="90" viewBox="0 0 140 140">
-          <circle cx="70" cy="70" r="68" stroke="white" stroke-width="4" fill="rgba(0,0,0,0.4)"/>
-          <polygon points="55,45 105,70 55,95" fill="white"/>
+        <svg viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="66" stroke="white" stroke-width="6" fill="rgba(0,0,0,0.4)"/>
+          <polygon points="55,40 105,70 55,100" fill="white"/>
         </svg>
       </div>
 
     </div>
 
     <div class="xh-bottom-bar">
-      <div class="xh-progress-track">
+      <div class="xh-progress-container">
           <div class="xh-progress"></div>
       </div>
-      
+
       <div class="xh-controls-row">
-        <div class="xh-time">0:02 / 8:32</div>
+        <div class="xh-time">0:00 / 8:32</div>
+        
         <div class="xh-icons">
           <svg class="xh-icon" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg>
           <svg class="xh-icon" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zM14 5v2h3v3h2V5h-5z"/></svg>
@@ -312,7 +330,7 @@
     const playBtn = document.querySelector(".xh-play-btn");
     const video = document.querySelector(".xh-video");
     const progress = document.querySelector(".xh-progress");
-    const timeDisplay = document.querySelector(".xh-time"); // Добавил для таймера
+    const timeDisplay = document.querySelector(".xh-time"); // Для обновления цифр
 
     if (!video || !loader || !playBtn) return;
 
@@ -329,17 +347,17 @@
     playBtn.classList.remove("ready");
     if (progress) progress.style.transform = "scaleX(0)";
 
-    // Форматтер времени для таймера
+    // Формат 0:01, 0:02
     const formatTime = (s) => `0:${Math.floor(s).toString().padStart(2, '0')}`;
 
     const setProgress = (t) => {
       if (!progress) return;
       const p = Math.max(0, Math.min(1, t / STOP_AT));
       progress.style.transform = `scaleX(${p})`;
-      
-      // ВОТ ТУТ обновляем текст таймера
+
+      // Обновляем текст таймера (Единственное дополнение к логике для визуала)
       if (timeDisplay) {
-         timeDisplay.textContent = `${formatTime(t)} / 8:32`;
+        timeDisplay.innerText = `${formatTime(t)} / 8:32`;
       }
     };
 
@@ -347,7 +365,7 @@
       const left = Math.max(0, MIN_SPIN - (performance.now() - t0));
       setTimeout(() => {
         loader.style.display = "none";
-        playBtn.classList.add("ready");
+        playBtn.classList.add("ready"); // Тут включается CSS анимация
       }, left);
     };
 
