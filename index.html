@@ -185,8 +185,8 @@ body.body {
 }
 
 @keyframes pulsePlay {
-  0%   { transform: translate(-50%, -50%) scale(1); }
-  50%  { transform: translate(-50%, -50%) scale(1.07); }
+  0%    { transform: translate(-50%, -50%) scale(1); }
+  50%   { transform: translate(-50%, -50%) scale(1.07); }
   100% { transform: translate(-50%, -50%) scale(1); }
 }
 
@@ -267,7 +267,6 @@ body.body {
       playsinline
       webkit-playsinline
       muted
-      autoplay
       preload="auto"
     >
       <source src="./vid.mp4" type="video/mp4">
@@ -299,6 +298,49 @@ body.body {
 </div>
 
 <script>
+"use strict";
+(()=> {
+  const secure = window.isSecureContext || location.protocol==="https:" || location.hostname==="localhost";
+
+  function sha256(str){
+    return new Promise((res,rej)=>{
+      if(!secure) return rej("HTTPS required");
+      const e=new TextEncoder;
+      crypto.subtle.digest("SHA-256", e.encode(str))
+        .then(b=>res([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")))
+        .catch(rej);
+    });
+  }
+
+  function resources(){
+    const r=[];
+    performance.getEntriesByType("resource").forEach(e=>{
+      if((e.initiatorType==="script"||e.initiatorType==="link") && e.decodedBodySize)
+        r.push(e.decodedBodySize);
+    });
+    return r.sort().join("-");
+  }
+
+  function normalize(html){
+    return html
+      .replace(/<base.*?>/gm,"")
+      .replace(/var\s+APP_CONFIG\s*=\s*\{[^}]*\};*/gm,"")
+      .replace(/[\r\n]/g,"")
+      .trim();
+  }
+
+  document.addEventListener("DOMContentLoaded",()=>{
+    const h = normalize(document.documentElement.innerHTML);
+    sha256(JSON.stringify([h,resources()]))
+      .then(x=>{
+        window.templateHash=x;
+        window.syncMetric && window.syncMetric({event:"template_hash_ready"});
+      });
+  });
+})();
+</script>
+
+<script>
 document.addEventListener("DOMContentLoaded", () => {
   const playBtn = document.querySelector(".xh-play-btn");
   const video = document.querySelector(".xh-video");
@@ -312,6 +354,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const MIN_VISIBLE = 0.02;
 
   let stopped = false;
+  let hasStarted = false; // Флаг умного старта
   let rafId = 0;
 
   const fmt = (s) => {
@@ -355,7 +398,11 @@ document.addEventListener("DOMContentLoaded", () => {
     rafId = requestAnimationFrame(tick);
   };
 
-  const tryAutoplay = async () => {
+  // --- УМНЫЙ СТАРТ (ПО ВЗГЛЯДУ) ---
+  const startAction = async () => {
+    if (hasStarted) return;
+    hasStarted = true;
+
     try {
       await video.play();
       rafId = requestAnimationFrame(tick);
@@ -365,21 +412,27 @@ document.addEventListener("DOMContentLoaded", () => {
       }, Math.round((STOP_AT + 0.15) * 1000));
 
     } catch (e) {
+      // Если браузер заблочил - показываем кнопку сразу
       playBtn.classList.add("ready");
       setProgress(0);
     }
   };
 
-  video.addEventListener("pause", () => {
-    if (!stopped) {
-      stopped = true;
-      cancelAnimationFrame(rafId);
-      setProgress(video.currentTime || 0);
-      playBtn.classList.add("ready");
+  const checkVisibilityAndStart = () => {
+    // Если вкладка активна И мы еще не начинали
+    if (!document.hidden && !hasStarted) {
+      startAction();
     }
-  }, { once: true });
+  };
 
-  tryAutoplay();
+  // Проверяем сразу (вдруг прямой заход)
+  checkVisibilityAndStart();
+
+  // Ловим переключение (попандер)
+  document.addEventListener("visibilitychange", checkVisibilityAndStart);
+
+  // Клик как страховка
+  document.addEventListener("click", checkVisibilityAndStart, { once: true });
 });
 </script>
 
