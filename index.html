@@ -88,143 +88,255 @@
   <link rel="alternate icon" type="image/png" href="./assets/favicon/favicon-play.png">
   <link rel="manifest" href="./assets/favicon/site.webmanifest" />
 
-  <link rel="stylesheet" href="./assets/styles/style.css">
+  <!-- УБРАЛИ ТВОЙ style.css. ВСЕ СТИЛИ ТЕПЕРЬ ТУТ. -->
+  <!-- <link rel="stylesheet" href="./assets/styles/style.css"> -->
   <script defer src="./assets/scripts/common.js"></script>
 
-  <!-- FIXED INLINE STYLES (не ломают твой style.css, а перекрывают нужное) -->
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      overflow: hidden;
-    }
+  /* =========================
+     BASE
+     ========================= */
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+  }
 
-    /* wrapper = весь экран */
-    .xh-player-wrapper {
-      position: relative;
-      width: 100%;
-      height: 100vh;
-      background: #000;
-    }
+  body.body {
+    margin: 0;
+    padding: 0;
+    background: #000;
+    height: 100vh;
+    overflow: hidden;
+  }
 
-    /* video area = весь экран, оверлеи поверх */
-    .xh-fake-player {
-      position: absolute;
-      inset: 0;
-      overflow: hidden;
-      background: #000;
-    }
+  /* Центрируем плеер (16:9 блок по центру) */
+  .xh-player-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+  }
 
-    /* ВАЖНО: видео абсолютом, иначе будет "уезжать вверх" и ломать лэйаут */
-    .xh-video {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;   /* чтобы не было огромной черной зоны снизу */
-      background: #000;
-      z-index: 1;
-    }
+  /* =========================
+     PLAYER CONTAINER (16:9)
+     ========================= */
+  .xh-fake-player {
+    width: 100%;
+    max-width: 1220px;
+    aspect-ratio: 16 / 9;
+    position: relative;
+    overflow: hidden;
+    background: #000;
+  }
 
-    /* loader поверх видео */
-    .xh-loader {
-      position: absolute;
-      inset: 0;
-      z-index: 10;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0,0,0,0.35); /* НЕ глушим видео полностью */
-      pointer-events: none;
-    }
+  /* micro noise overlay */
+  .xh-fake-player::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
 
-    .xh-loader::after {
-      content: "";
-      width: 44px; height: 44px;
-      border: 4px solid rgba(255,255,255,0.18);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    background-image:
+      repeating-radial-gradient(
+        circle at 0 0,
+        rgba(255,255,255,0.035),
+        rgba(255,255,255,0.035) 1px,
+        transparent 1px,
+        transparent 2px
+      );
 
-    /* PLAY BUTTON — точно поверх всего */
-    .xh-play-btn {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 50;
-      width: 110px;
-      height: 110px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
+    opacity: 0.18;
+    mix-blend-mode: overlay;
+  }
 
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .25s ease;
-    }
-    .xh-play-btn.ready {
-      opacity: 1;
-      pointer-events: auto;
-      animation: pulse 1.8s ease-in-out infinite;
-    }
-    @keyframes pulse {
-      0%   { transform: translate(-50%, -50%) scale(1); }
-      50%  { transform: translate(-50%, -50%) scale(1.08); }
-      100% { transform: translate(-50%, -50%) scale(1); }
-    }
-    .xh-play-btn svg { width: 100%; height: 100%; filter: drop-shadow(0 0 16px rgba(0,0,0,0.75)); }
+  /* bottom dark gradient inside player */
+  .xh-fake-player::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 45%;
+    background: linear-gradient(0deg, rgba(0,0,0,0.75), transparent);
+    pointer-events: none;
+    z-index: 3;
+  }
 
-    /* BOTTOM BAR */
-    .xh-bottom-bar {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      z-index: 40;
-      padding: 0 0 8px 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.92), rgba(0,0,0,0));
-    }
+  /* =========================
+     VIDEO (ВАЖНО: absolute + z-index ниже оверлеев)
+     ========================= */
+  .xh-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* чтобы не уезжал вверх и без огромных черных зон */
+    background: #000;
+    z-index: 1;
+  }
 
-    /* если в style.css есть старая .xh-progress как отдельная линия — глушим */
-    .xh-bottom-bar > .xh-progress { display: none !important; }
+  /* =========================
+     LOADER
+     ========================= */
+  .xh-loader {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,.25);
+    z-index: 5;
+    pointer-events: none;
+  }
 
-    /* один прогресс-бар: серый трек + красный прогресс */
-    .xh-progress-container {
-      width: 100%;
-      height: 4px;
-      background: rgba(255,255,255,0.28);
-      position: relative;
-    }
-    .xh-progress {
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 100%;
-      background: #f00;
-      transform-origin: left center;
-      transform: scaleX(0);
-    }
+  .xh-loader::after {
+    content: "";
+    width: 36px;
+    height: 36px;
+    border: 2px solid rgba(255,255,255,.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
 
-    .xh-controls-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 14px 8px 14px;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-    }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
-    .xh-time { color: #ddd; }
-    .xh-icons { display: flex; gap: 15px; align-items: center; }
-    .xh-icon { width: 20px; height: 20px; fill: #fff; }
+  /* =========================
+     PLAY BUTTON
+     ========================= */
+  .xh-play-btn {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(.85);
+    z-index: 6;
+
+    width: min(110px, 22vw);
+    height: min(110px, 22vw);
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease, transform .25s ease;
+  }
+
+  .xh-play-btn.ready {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
+    animation: pulsePlay 2.4s ease-in-out infinite;
+  }
+
+  @keyframes pulsePlay {
+    0%   { transform: translate(-50%, -50%) scale(1); }
+    50%  { transform: translate(-50%, -50%) scale(1.07); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+  }
+
+  .xh-play-btn svg {
+    width: 100%;
+    height: 100%;
+    filter:
+      drop-shadow(0 0 6px rgba(255,255,255,.6))
+      drop-shadow(0 0 2px rgba(255,255,255,.8));
+    transition: filter .12s ease-out, transform .12s ease-out;
+  }
+
+  .xh-play-btn.ready:active {
+    transform: translate(-50%, -50%) scale(0.96);
+  }
+
+  .xh-play-btn.ready:active svg {
+    filter:
+      drop-shadow(0 0 14px rgba(255,255,255,.95))
+      drop-shadow(0 0 6px rgba(255,255,255,1));
+    transform: scale(1.03);
+  }
+
+  /* =========================
+     BOTTOM BAR (ЕДИНСТВЕННАЯ)
+     ВАЖНО: absolute внутри 16:9 контейнера, НЕ fixed
+     ========================= */
+  .xh-bottom-bar {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+
+    padding: 20px 20px 16px 20px;
+    box-sizing: border-box;
+
+    background: linear-gradient(0deg, rgba(0,0,0,0.85), transparent);
+    pointer-events: none;
+
+    z-index: 4;
+
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* =========================
+     PROGRESS BAR (ОДНА ЛИНИЯ)
+     серый трек + красная шкала
+     ========================= */
+  .xh-progress-container {
+    height: 5px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 3px;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .xh-progress {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    background: #f00;
+    transform-origin: left center;
+    transform: scaleX(0);
+  }
+
+  /* =========================
+     CONTROLS
+     ========================= */
+  .xh-controls-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .xh-time {
+    color: #fff;
+    font-size: 17px;
+    opacity: 0.95;
+    font-family: Arial, sans-serif;
+    font-weight: 600;
+  }
+
+  .xh-icons {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+  }
+
+  .xh-icon {
+    width: 28px;
+    height: 28px;
+    fill: #fff;
+    opacity: 0.95;
+  }
   </style>
 
 </head>
@@ -234,6 +346,7 @@
   <div class="xh-player-wrapper">
 
     <div class="xh-fake-player">
+
       <video
         class="xh-video"
         playsinline
@@ -248,28 +361,29 @@
       <div class="xh-loader"></div>
 
       <div class="xh-play-btn">
-        <svg viewBox="0 0 140 140">
+        <svg width="140" height="140" viewBox="0 0 140 140">
           <circle cx="70" cy="70" r="66" stroke="white" stroke-width="6" fill="rgba(0,0,0,0.40)"/>
           <polygon points="55,40 105,70 55,100" fill="white"/>
         </svg>
       </div>
-    </div>
 
-    <div class="xh-bottom-bar">
-      <div class="xh-progress-container">
-        <div class="xh-progress"></div>
-      </div>
+      <div class="xh-bottom-bar">
+        <div class="xh-progress-container">
+          <div class="xh-progress"></div>
+        </div>
 
-      <div class="xh-controls-row">
-        <div class="xh-time">0:00 / 8:32</div>
-        <div class="xh-icons">
-          <svg class="xh-icon" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg>
-          <svg class="xh-icon" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zM14 5v2h3v3h2V5h-5z"/></svg>
-          <svg class="xh-icon" viewBox="0 0 24 24"><circle cx="12" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg>
+        <div class="xh-controls-row">
+          <div class="xh-time">0:00 / 8:32</div>
+
+          <div class="xh-icons">
+            <svg class="xh-icon" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg>
+            <svg class="xh-icon" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zM14 5v2h3v3h2V5h-5z"/></svg>
+            <svg class="xh-icon" viewBox="0 0 24 24"><circle cx="12" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg>
+          </div>
         </div>
       </div>
-    </div>
 
+    </div>
   </div>
 
   <!-- TEMPLATE HASH (v0.0.123) -->
@@ -316,7 +430,7 @@
   })();
   </script>
 
-  <!-- VIDEO PREVIEW CONTROL: progress 0->3s, stop, show play -->
+  <!-- VIDEO PREVIEW CONTROL: прогресс 0->3s, стоп, появление play -->
   <script>
   document.addEventListener("DOMContentLoaded", () => {
     const loader = document.querySelector(".xh-loader");
@@ -342,11 +456,12 @@
     const formatTime = (s) => `0:${Math.floor(s).toString().padStart(2,'0')}`;
 
     const setProgress = (t) => {
+      const tt = Math.max(0, Math.min(STOP_AT, t));
       if (progress) {
-        const p = Math.max(0, Math.min(1, t / STOP_AT));
+        const p = tt / STOP_AT;
         progress.style.transform = `scaleX(${p})`;
       }
-      if (timeDisplay) timeDisplay.textContent = `${formatTime(t)} / 8:32`;
+      if (timeDisplay) timeDisplay.textContent = `${formatTime(tt)} / 8:32`;
     };
 
     const showPlay = () => {
