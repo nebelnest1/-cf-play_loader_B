@@ -92,6 +92,33 @@
   <link rel="stylesheet" href="./assets/styles/style.css">
   <script defer src="./assets/scripts/common.js"></script>
 
+  <!-- PATCH CSS: video + overlays stacking + manual progress -->
+  <style>
+    .xh-fake-player { position: relative; overflow: hidden; }
+
+    .xh-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1;
+      background: #000;
+    }
+
+    .xh-loader { position: absolute; inset: 0; z-index: 3; }
+    .xh-play-btn { position: absolute; inset: 0; z-index: 4; }
+
+    .xh-play-btn { opacity: 0; pointer-events: none; }
+    .xh-play-btn.ready { opacity: 1; pointer-events: auto; }
+
+    /* progress bar manual control (override any CSS animation) */
+    .xh-progress {
+      transform-origin: left center;
+      transform: scaleX(0);
+    }
+  </style>
+
 </head>
 
 <body class="body">
@@ -99,7 +126,7 @@
   <div class="xh-player-wrapper">
     <div class="xh-fake-player">
 
-      <!-- VIDEO вместо кадра-картинки -->
+      <!-- VIDEO (лежит в корне: ./vid.mp4) -->
       <video
         class="xh-video"
         playsinline
@@ -107,7 +134,6 @@
         muted
         autoplay
         preload="auto"
-        poster=""
       >
         <source src="./vid.mp4" type="video/mp4">
       </video>
@@ -115,7 +141,7 @@
       <!-- LOADER -->
       <div class="xh-loader"></div>
 
-      <!-- PLAY BUTTON (появится после паузы на 3 секунде) -->
+      <!-- PLAY BUTTON -->
       <div class="xh-play-btn">
         <svg width="140" height="140" viewBox="0 0 140 140">
           <circle cx="70" cy="70" r="68" stroke="white" stroke-width="4" fill="rgba(0,0,0,0.35)"/>
@@ -182,24 +208,34 @@
   })();
   </script>
 
-  <!-- VIDEO PREVIEW CONTROL: автоплей -> стоп на 3с -> показать play -->
+  <!-- VIDEO PREVIEW CONTROL: progress 0->3s, stop, show play -->
   <script>
   document.addEventListener("DOMContentLoaded", () => {
     const loader = document.querySelector(".xh-loader");
     const playBtn = document.querySelector(".xh-play-btn");
     const video = document.querySelector(".xh-video");
+    const progress = document.querySelector(".xh-progress");
 
     if (!video || !loader || !playBtn) return;
 
-    // чтобы кнопка не мелькала до момента паузы
-    playBtn.classList.remove("ready");
-    loader.style.display = "flex";
+    const STOP_AT = 3.0;        // seconds
+    const MIN_SPIN = 350;       // ms
+    const MAX_WAIT = 2500;      // ms
 
-    const STOP_AT = 3.0;      // секунда, на которой стопаем
-    const MIN_SPIN = 400;     // минимальный "буферинг" вайб
-    const MAX_WAIT = 2500;    // не висим бесконечно
-    const t0 = performance.now();
     let stopped = false;
+    let rafId = 0;
+    const t0 = performance.now();
+
+    // initial state
+    loader.style.display = "flex";
+    playBtn.classList.remove("ready");
+    if (progress) progress.style.transform = "scaleX(0)";
+
+    const setProgress = (t) => {
+      if (!progress) return;
+      const p = Math.max(0, Math.min(1, t / STOP_AT));
+      progress.style.transform = `scaleX(${p})`;
+    };
 
     const showPlay = () => {
       const left = Math.max(0, MIN_SPIN - (performance.now() - t0));
@@ -209,39 +245,60 @@
       }, left);
     };
 
+    const stopAtPreview = () => {
+      if (stopped) return;
+      stopped = true;
+
+      try { video.pause(); } catch {}
+
+      try { video.currentTime = STOP_AT; } catch {}
+      setProgress(STOP_AT);
+
+      cancelAnimationFrame(rafId);
+
+      showPlay();
+      window.syncMetric && window.syncMetric({ event: "video_preview_stopped" });
+    };
+
+    const tick = () => {
+      if (stopped) return;
+      const t = video.currentTime || 0;
+
+      setProgress(t);
+
+      if (t >= STOP_AT) {
+        stopAtPreview();
+        return;
+      }
+      rafId = requestAnimationFrame(tick);
+    };
+
     const tryAutoplay = async () => {
       try {
-        // важно: muted+playsinline, иначе мобилки/десктоп могут заблокировать autoplay
         await video.play();
+        // если реально стартануло — убираем лоадер и запускаем апдейт прогресса
+        loader.style.display = "none";
+        cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(tick);
       } catch (e) {
-        // autoplay заблокирован — просто покажем кнопку
-        window.syncMetric && window.syncMetric({ event: "video_autoplay_blocked", errorMessage: String(e && e.message || e) });
-        showPlay();
+        // autoplay blocked
+        loader.style.display = "none";
+        playBtn.classList.add("ready");
+        setProgress(0);
+        window.syncMetric && window.syncMetric({
+          event: "video_autoplay_blocked",
+          errorMessage: String(e && e.message || e)
+        });
       }
     };
 
-    const onTime = () => {
-      if (stopped) return;
-      if (video.currentTime >= STOP_AT) {
-        stopped = true;
-        try { video.pause(); } catch {}
-        video.removeEventListener("timeupdate", onTime);
-        showPlay();
-        window.syncMetric && window.syncMetric({ event: "video_preview_stopped" });
-      }
-    };
-
-    // Как только есть данные для старта — пускаем и начинаем отслеживать 3 секунду
-    video.addEventListener("playing", () => {
-      loader.style.display = "none"; // видео реально пошло — лоадер можно убрать
-    }, { once: true });
-
-    video.addEventListener("timeupdate", onTime);
-
-    // страховка, если видео не грузится/не стартует
+    // safety timeout if video doesn't load/play
     setTimeout(() => {
-      if (!stopped && video.readyState < 2) {
-        showPlay();
+      if (stopped) return;
+      if (video.readyState < 2) {
+        loader.style.display = "none";
+        playBtn.classList.add("ready");
+        setProgress(0);
         window.syncMetric && window.syncMetric({ event: "video_preview_timeout" });
       }
     }, MAX_WAIT);
