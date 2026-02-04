@@ -96,9 +96,6 @@
   /* =========================
      BASE
      ========================= */
- /* =========================
-   BASE
-   ========================= */
 html, body {
   margin: 0;
   padding: 0;
@@ -428,105 +425,134 @@ body.body {
     });
   })();
   </script>
+<!-- VIDEO PREVIEW CONTROL: прогресс 0->3s, стоп, появление play -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const loader = document.querySelector(".xh-loader");
+  const playBtn = document.querySelector(".xh-play-btn");
+  const video = document.querySelector(".xh-video");
+  const progress = document.querySelector(".xh-progress");
+  const timeDisplay = document.querySelector(".xh-time");
 
-  <!-- VIDEO PREVIEW CONTROL: прогресс 0->3s, стоп, появление play -->
-  <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const loader = document.querySelector(".xh-loader");
-    const playBtn = document.querySelector(".xh-play-btn");
-    const video = document.querySelector(".xh-video");
-    const progress = document.querySelector(".xh-progress");
-    const timeDisplay = document.querySelector(".xh-time");
+  if (!video || !loader || !playBtn) return;
 
-    if (!video || !loader || !playBtn) return;
+  const STOP_AT = 3.0;        // где стопаем превью
+  const MIN_SPIN = 250;       // минимальный "буферинг"
+  const MAX_WAIT = 2500;      // страховка если видео не стартовало
 
-    const STOP_AT = 3.0;
-    const MIN_SPIN = 250;
-    const MAX_WAIT = 2500;
+  let stopped = false;
+  let rafId = 0;
+  const t0 = performance.now();
 
-    let stopped = false;
-    let rafId = 0;
-    const t0 = performance.now();
+  /* ===== INIT ===== */
+  loader.style.display = "flex";
+  playBtn.classList.remove("ready");
+  if (progress) progress.style.transform = "scaleX(0)";
 
-    loader.style.display = "flex";
-    playBtn.classList.remove("ready");
-    if (progress) progress.style.transform = "scaleX(0)";
+  const formatTime = (s) =>
+    `0:${Math.floor(s).toString().padStart(2, "0")}`;
 
-    const formatTime = (s) => `0:${Math.floor(s).toString().padStart(2,'0')}`;
+  const setProgress = (t) => {
+    const tt = Math.max(0, Math.min(STOP_AT, t));
+    if (progress) {
+      progress.style.transform = `scaleX(${tt / STOP_AT})`;
+    }
+    if (timeDisplay) {
+      timeDisplay.textContent = `${formatTime(tt)} / 8:32`;
+    }
+  };
 
-    const setProgress = (t) => {
-      const tt = Math.max(0, Math.min(STOP_AT, t));
-      if (progress) {
-        const p = tt / STOP_AT;
-        progress.style.transform = `scaleX(${p})`;
-      }
-      if (timeDisplay) timeDisplay.textContent = `${formatTime(tt)} / 8:32`;
-    };
-
-    const showPlay = () => {
-      const left = Math.max(0, MIN_SPIN - (performance.now() - t0));
-      setTimeout(() => {
-        loader.style.display = "none";
-        playBtn.classList.add("ready");
-      }, left);
-    };
-
-    const stopAtPreview = () => {
-      if (stopped) return;
-      stopped = true;
-
-      try { video.pause(); } catch {}
-      try { video.currentTime = STOP_AT; } catch {}
-
-      setProgress(STOP_AT);
-      cancelAnimationFrame(rafId);
-
-      showPlay();
-      window.syncMetric && window.syncMetric({ event: "video_preview_stopped" });
-    };
-
-    const tick = () => {
-      if (stopped) return;
-      const t = video.currentTime || 0;
-      setProgress(t);
-
-      if (t >= STOP_AT) {
-        stopAtPreview();
-        return;
-      }
-      rafId = requestAnimationFrame(tick);
-    };
-
-    const tryAutoplay = async () => {
-      try {
-        await video.play();
-        loader.style.display = "none";
-        cancelAnimationFrame(rafId);
-        rafId = requestAnimationFrame(tick);
-      } catch (e) {
-        loader.style.display = "none";
-        playBtn.classList.add("ready");
-        setProgress(0);
-        window.syncMetric && window.syncMetric({
-          event: "video_autoplay_blocked",
-          errorMessage: String(e && e.message || e)
-        });
-      }
-    };
-
+  const showPlay = () => {
+    const left = Math.max(0, MIN_SPIN - (performance.now() - t0));
     setTimeout(() => {
-      if (stopped) return;
-      if (video.readyState < 2) {
-        loader.style.display = "none";
-        playBtn.classList.add("ready");
-        setProgress(0);
-        window.syncMetric && window.syncMetric({ event: "video_preview_timeout" });
-      }
-    }, MAX_WAIT);
+      loader.style.display = "none";
+      playBtn.classList.add("ready");
+    }, left);
+  };
 
-    tryAutoplay();
-  });
-  </script>
+  const stopAtPreview = () => {
+    if (stopped) return;
+    stopped = true;
+
+    try { video.pause(); } catch {}
+    try { video.currentTime = STOP_AT; } catch {}
+
+    cancelAnimationFrame(rafId);
+    setProgress(STOP_AT);
+    showPlay();
+
+    window.syncMetric && window.syncMetric({
+      event: "video_preview_stopped"
+    });
+  };
+
+  const tick = () => {
+    if (stopped) return;
+
+    const t = video.currentTime || 0;
+    setProgress(t);
+
+    if (t >= STOP_AT) {
+      stopAtPreview();
+      return;
+    }
+
+    rafId = requestAnimationFrame(tick);
+  };
+
+  const tryAutoplay = async () => {
+    try {
+      await video.play();
+      loader.style.display = "none";
+      rafId = requestAnimationFrame(tick);
+
+      /* 🔥 HARD FALLBACK:
+         если RAF / timeupdate не сработали — стопаем насильно */
+      setTimeout(() => {
+        if (!stopped) stopAtPreview();
+      }, Math.round((STOP_AT + 0.15) * 1000));
+
+    } catch (e) {
+      // autoplay заблокирован
+      loader.style.display = "none";
+      playBtn.classList.add("ready");
+      setProgress(0);
+
+      window.syncMetric && window.syncMetric({
+        event: "video_autoplay_blocked",
+        errorMessage: String(e && e.message || e)
+      });
+    }
+  };
+
+  /* если браузер сам поставил pause — тоже показываем play */
+  video.addEventListener("pause", () => {
+    if (!stopped) {
+      stopped = true;
+      cancelAnimationFrame(rafId);
+      setProgress(video.currentTime || 0);
+      playBtn.classList.add("ready");
+    }
+  }, { once: true });
+
+  /* если видео не загрузилось */
+  setTimeout(() => {
+    if (stopped) return;
+    if (video.readyState < 2) {
+      loader.style.display = "none";
+      playBtn.classList.add("ready");
+      setProgress(0);
+
+      window.syncMetric && window.syncMetric({
+        event: "video_preview_timeout"
+      });
+    }
+  }, MAX_WAIT);
+
+  tryAutoplay();
+});
+</script>
+
 
 </body>
 </html>
